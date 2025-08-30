@@ -27,7 +27,7 @@ Format for all per-output properties:
 
 ### Mute (0x14)
 
-Format: `14 00 <Value>`
+Format: `0x14 0x00 <Value>`
 
 | Value | Meaning       |
 |-------|---------------|
@@ -38,7 +38,7 @@ Format: `14 00 <Value>`
 
 ### Compression Flags (0x15)
 
-Format: `15 00 <Value>`
+Format: `0x15 0x00 <Value>`
 
 - `<Value>`: bitmask per output
 
@@ -53,7 +53,7 @@ Format: `15 00 <Value>`
 
 ### Talkback (0x09)
 
-Format: `09 00 <Value>`
+Format: `0x09 0x00 <Value>`
 
 | Value | Meaning        |
 |-------|----------------|
@@ -64,7 +64,7 @@ Format: `09 00 <Value>`
 
 ### Connection Flags (0x0B)
 
-Format: `0B <InputFlags> <OutputFlags>`
+Format: `0x0B <InputFlags> <OutputFlags>`
 
 - `<InputFlags>`: bitmask for input connections (1 = connected)  
   - Bit 0 → Input 0  
