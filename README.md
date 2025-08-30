@@ -14,7 +14,7 @@ The BLE protocol is described in [protocol.md](protocol.md).
 
 ## Todos
 - [x] Understand and document protocol 
-- [ ] Describe BLE connection details
+- [x] Describe BLE connection details
 - [ ] Describe bidirectional/unidirectional protocol elements
 - [ ] Provide a high-level wrapper around the protocol
 - [ ] Linux BLE connection code + protocol wrapper = Linux Blender API
