@@ -1,10 +1,25 @@
 # TC Helicon Blender BLE Protocol
 
-This document describes the reverse-engineered BLE protocol of the TC Helicon Blender mixer. Messages are always sent as 3-byte commands.
+This document describes the reverse-engineered BLE protocol of the TC Helicon Blender mixer.
 
 ---
 
-## Per-Output Properties (0x00–0x08)
+## BLE Connection
+
+- **Device Name:** `Blender`
+- **Service UUID:** `e71ee188-279f-4ed6-8055-12d77bfd900c`
+- **Characteristic UUID:** `50e2d021-f23b-46fb-b7e6-fbe12301276a`
+   - This characteristic receives data from the Blender via notify events and allows sending data to the Blender via writes. Reads will not provide any useful data.
+  
+---
+
+## Protocol
+
+Messages are always sent as 3-byte commands.
+
+---
+
+### Per-Output Properties (0x00–0x08)
 
 Format for all per-output properties:
 `<PropertyID> <OutputNumber> <Value>`
@@ -23,9 +38,9 @@ Format for all per-output properties:
 
 ---
 
-## Global Properties
+### Global Properties
 
-### Mute (0x14)
+#### Mute (0x14)
 
 Format: `0x14 0x00 <Value>`
 
@@ -36,7 +51,7 @@ Format: `0x14 0x00 <Value>`
 
 ---
 
-### Compression Flags (0x15)
+#### Compression Flags (0x15)
 
 Format: `0x15 0x00 <Value>`
 
@@ -51,7 +66,7 @@ Format: `0x15 0x00 <Value>`
 
 ---
 
-### Talkback (0x09)
+#### Talkback (0x09)
 
 Format: `0x09 0x00 <Value>`
 
@@ -62,7 +77,7 @@ Format: `0x09 0x00 <Value>`
 
 ---
 
-### Connection Flags (0x0B)
+#### Connection Flags (0x0B)
 
 Format: `0x0B <InputFlags> <OutputFlags>`
 
@@ -77,7 +92,7 @@ Format: `0x0B <InputFlags> <OutputFlags>`
 
 ---
 
-### Unknown Properties
+#### Unknown Properties
 
 - **0x0A**: only observed value `0x00 0x00`, purpose unknown  
 - **0x11**: only observed value `0x00 0x00`, purpose unknown
