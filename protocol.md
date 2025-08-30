@@ -6,7 +6,8 @@ This document describes the reverse-engineered BLE protocol of the TC Helicon Bl
 
 ## Per-Output Properties (0x00–0x08)
 
-Format for all per-output properties: <PropertyID> <OutputNumber> <Value>
+Format for all per-output properties:
+`<PropertyID> <OutputNumber> <Value>`
 
 - `<OutputNumber>`: 0–3 (four outputs)  
 - `<Value>`: volume/compression level (1 byte)  
