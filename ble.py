@@ -1,4 +1,5 @@
 import asyncio
+from typing import Callable, Awaitable
 from bleak import BleakClient, BleakScanner
 
 BLENDER_NAME = "Blender"
@@ -16,10 +17,17 @@ async def find_blender():
         await asyncio.sleep(2)
 
 class BlenderBLEClient:
-    def __init__(self, handle_notify):
-        self.handle_notify = handle_notify
+    def __init__(self, handle_message: Callable[[bytes], Awaitable[None]]):
+        self.handle_message: Callable[[bytes], Awaitable[None]] = handle_message
         self.client = None
         self.connected = False
+
+    async def handle_notify(self, _, data: bytearray):
+        if len(data) % 3 != 0:
+            raise ValueError(f"Received data length {len(data)} is not divisible by 3: {data.hex()}")
+        for i in range(0, len(data), 3):
+            chunk = bytes(data[i:i+3])
+            await self.handle_message(chunk)
 
     async def connect(self):
         blender_address = await find_blender()
@@ -45,8 +53,9 @@ class BlenderBLEClient:
 
 
 
+
 # Example usage:
-async def my_notify_handler(_, data: bytearray):
+async def my_notify_handler(data: bytes):
     print(f"Received: {data.hex()}")
 
 async def main():
