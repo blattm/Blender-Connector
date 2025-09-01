@@ -20,6 +20,7 @@ The BLE protocol is described in [protocol.md](protocol.md).
 - [ ] Provide a high-level wrapper around the protocol messages
 - [ ] Fully functioning Blender API
 - [ ] Representation of Blender state via object
+- [ ] BLE Blender Server
 - [ ] Define an API to connect with (web) clients
 - [ ] Write web client + server
 
