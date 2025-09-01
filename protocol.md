@@ -23,6 +23,8 @@ Messages are always sent as 3-byte commands.
 
 Client Hello / Request current state: `0x13 0x00 0x00`
 
+Always send this to Blender first, or the connection will stay read-only.
+
 ### Per-Output Properties (0x00–0x08)
 
 Format for all per-output properties:
