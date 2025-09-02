@@ -54,8 +54,8 @@ CONFIG = bytes.fromhex(
 )
 
 
-class BlenderServer:
-    def __init__(self, on_write: Callable[["BlenderServer", bytearray], None]):
+class BlenderBLEServer:
+    def __init__(self, on_write: Callable[["BlenderBLEServer", bytearray], None]):
 
         # Get default adapter address
         adapter_address = list(adapter.Adapter.available())[0].address
@@ -92,11 +92,11 @@ class BlenderServer:
 
 
 if __name__ == "__main__":
-    def example_on_write(server:BlenderServer, value:bytearray):
+    def example_on_write(server: BlenderBLEServer, value: bytearray):
         print(f"Client wrote: {bytes(value).hex()}")
         if value[:3] == bytearray(bytes.fromhex("130000")):
             server.notify(CONFIG)
 
-    server = BlenderServer(on_write=example_on_write)
+    server = BlenderBLEServer(on_write=example_on_write)
     server.start()
 
