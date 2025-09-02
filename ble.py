@@ -19,8 +19,8 @@ async def find_blender():
 class BlenderBLEClient:
     def __init__(self, handle_message: Callable[[bytes], Awaitable[None]]):
         self.handle_message: Callable[[bytes], Awaitable[None]] = handle_message
-        self.client = None
-        self.connected = False
+        self.client: BleakClient | None = None
+        self.connected: bool = False
 
     async def handle_notify(self, _, data: bytearray):
         if len(data) % 3 != 0:
@@ -30,17 +30,26 @@ class BlenderBLEClient:
             await self.handle_message(chunk)
 
     async def connect(self):
-        blender_address = await find_blender()
-        self.client = BleakClient(blender_address)
-        await self.client.__aenter__()
-        print(f"Connected to {BLENDER_NAME} ({blender_address})")
-        await self.client.start_notify(CHAR_UUID, self.handle_notify)
-        self.connected = True
-        print("Notification handler started.")
+        """Keep trying until successfully connected."""
+        while not self.connected:
+            try:
+                blender_address = await find_blender()
+                print(f"Found Blender at {blender_address}, connecting...")
+                self.client = BleakClient(blender_address)
+                await self.client.__aenter__()  # enters context, may timeout
+                await self.client.start_notify(CHAR_UUID, self.handle_notify)
+                self.connected = True
+                print(f"Connected to {BLENDER_NAME} ({blender_address})")
+            except (asyncio.TimeoutError, asyncio.CancelledError) as e:
+                print(f"Connection failed: {e}. Retrying...")
+                # await asyncio.sleep(2)
 
     async def disconnect(self):
         if self.client and self.connected:
-            await self.client.stop_notify(CHAR_UUID)
+            try:
+                await self.client.stop_notify(CHAR_UUID)
+            except Exception:
+                pass
             await self.client.__aexit__(None, None, None)
             self.connected = False
             print("Disconnected.")
@@ -61,6 +70,8 @@ async def my_notify_handler(data: bytes):
 async def main():
     blender = BlenderBLEClient(my_notify_handler)
     await blender.connect()
+    await blender.send_data(bytes.fromhex("130000"))
+    await blender.send_data(bytes.fromhex("000008"))
     await blender.send_data(bytes.fromhex("130000"))
     await asyncio.sleep(10)
     await blender.disconnect()
