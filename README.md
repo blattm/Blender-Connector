@@ -10,10 +10,10 @@ A WIP reverse-engineered Linux interface for the TC Helicon Blender mixer, enabl
 
 ## Protocol Documentation
 
-The BLE protocol is described in [protocol.md](protocol.md).  
+The BLE protocol is described in [documentation/blender_protocol.md](documentation/blender_protocol.md).
 
 ## Todos
-- [x] Understand and document protocol 
+- [x] Understand and document protocol
 - [x] Describe BLE connection details
 - [ ] Describe bidirectional/unidirectional protocol elements
 - [x] BLE connection code
@@ -26,6 +26,6 @@ The BLE protocol is described in [protocol.md](protocol.md).
 
 ## Legal / Disclaimer
 
-- This project is **not affiliated with TC Helicon** in any way.  
-- Use this software and protocol description **at your own risk**.  
+- This project is **not affiliated with TC Helicon** in any way.
+- Use this software and protocol description **at your own risk**.
 - The author is **not responsible** for any damage to your device, loss of functionality, or other issues caused by using this code or protocol information.
