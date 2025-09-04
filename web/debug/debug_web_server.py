@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 hostName = "localhost"
@@ -36,7 +37,11 @@ class DebugWebServer(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        content = self._get_file_content(f"..{path.file_path}")
+        global_path = os.path.dirname(os.path.abspath(__file__)) + path.file_path
+        # Use the path class to join the paths instead:
+        global_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"..{path.file_path}")
+
+        content = self._get_file_content(global_path)
         if content is None:
             self.send_response(404)
             self.end_headers()
