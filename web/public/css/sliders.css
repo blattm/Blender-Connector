@@ -1,0 +1,67 @@
+input[type="range"]
+{
+    --selected-range-colour: #3780D6;
+    --unselected-range-colour: #ABABAB;
+    --line-thickness: 0.5rem;
+    --thumb-size: 1.8rem;
+
+    --colour-gradient: color-mix(in srgb, var(--selected-range-colour), #000 var(--translucency, 0%));
+
+	flex-grow: 1;
+    min-width: var(--thumb-size);
+    min-height: var(--thumb-size);
+	display: block;
+
+    appearance: none;
+    background: none;
+    overflow: hidden;
+
+    cursor: pointer;
+}
+
+input[type="range"][orient="horizontal"]
+{
+	height: 100%;
+}
+
+input[type="range"][orient="vertical"]
+{
+	width: 100%;
+    writing-mode: vertical-lr;
+}
+
+input[type="range"]:focus-visible,
+input[type="range"]:hover {
+    --translucency: 25%;
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-thumb {
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    background: var(--colour-gradient);
+    border-image:
+        linear-gradient(90deg, var(--colour-gradient) 50%, var(--unselected-range-colour) 0)
+        0 1/calc(50% - var(--line-thickness)/2) 100vw/0 100vw;
+    appearance: none;
+    transition: 0.3s;
+}
+input[type="range"][orient="vertical"]::-moz-range-thumb {
+    rotate: 270deg;
+}
+
+/* Chromium */ /* HACK: It needs to be duplicated here because Chromium refuses to acknowledge it if concatenated with the Firefox rule. */
+input[type="range"]::-webkit-slider-thumb {
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    background: var(--colour-gradient);
+    border-image:
+        linear-gradient(90deg, var(--colour-gradient) 50%, var(--unselected-range-colour) 0)
+        0 1/calc(50% - var(--line-thickness)/2) 100vw/0 100vw;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: 0.3s;
+}
+input[type="range"][orient="vertical"]::-webkit-slider-thumb {
+    rotate: 270deg;
+}
