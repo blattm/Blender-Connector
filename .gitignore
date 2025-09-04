@@ -1,2 +1,16 @@
-env
+# Builds
 *.pyc
+__pycache__
+web/build/
+
+# Dependencies
+env
+venv
+.venv
+node_modules
+package-lock.json
+pnpm-workspace.yaml
+
+# Editor specific
+.vscode/
+*.code-workspace
