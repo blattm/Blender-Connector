@@ -17,69 +17,43 @@
 </head>
 <body>
     <!-- Global settings -->
-    <section>
-        <div>
-            <label>
-                <input type="checkbox" name="mute" /> Mute
-            </label>
-            <input type="range" min="0" max="100" value="50" orient="horizontal" name="level" />
-        </div>
-        <div>
-            <label>
-                <input type="checkbox" name="microphone_on" /> Room Microphone
-            </label>
-            <input type="range" min="0" max="100" value="50" orient="horizontal" name="microphone_volume" />
-        </div>
+    <section id="global-settings-container">
     </section>
 
     <!-- Input selection -->
     <section>
-        <div>
-            <button type="button">A</button>
-            <button type="button">B</button>
-            <button type="button">C</button>
-            <button type="button">D</button>
+        <div id="input-container">
         </div>
     </section>
 
     <!-- Mixture controls -->
     <section class="mixer-section">
-        <div>
-            <div class="mixer-control">
-                <input type="range" min="0" max="100" value="50" orient="vertical" name="mixer1" />
-                <button type="button">1</button>
-            </div>
-            <div class="mixer-control">
-                <input type="range" min="0" max="100" value="50" orient="vertical" name="mixer2" />
-                <button type="button">2</button>
-            </div>
-            <div class="mixer-control">
-                <input type="range" min="0" max="100" value="50" orient="vertical" name="mixer3" />
-                <button type="button">3</button>
-            </div>
-            <div class="mixer-control">
-                <input type="range" min="0" max="100" value="50" orient="vertical" name="mixer4" />
-                <button type="button">4</button>
-            </div>
-            <div class="mixer-control">
-                <input type="range" min="0" max="100" value="50" orient="vertical" name="mixer5" />
-                <button type="button">5</button>
-            </div>
-            <div class="mixer-control">
-                <input type="range" min="0" max="100" value="50" orient="vertical" name="mixer6" />
-                <button type="button">6</button>
-            </div>
+        <div id="mixer-container">
         </div>
     </section>
 
     <!-- Local settings -->
-    <section>
-        <div>
-            <label>
-                <input type="checkbox" name="compressor_on" /> Compressor
-            </label>
-            <input type="range" min="0" max="100" value="50" orient="horizontal" name="compressor_level" />
-        </div>
+    <section id="local-settings-container"></section>
     </section>
+
+    <!-- Templates -->
+
+    <template id="setting-template">
+        <div class="setting">
+            <button type="button"></button>
+            <input type="range" min="0" max="100" value="50" orient="horizontal" />
+        </div>
+    </template>
+
+    <template id="input-button-template">
+        <button type="button"></button>
+    </template>
+
+    <template id="mixer-control-template">
+        <div class="mixer-control">
+            <input type="range" min="0" max="100" value="50" orient="vertical" />
+            <button type="button"></button>
+        </div>
+    </template>
 </body>
 </html>
