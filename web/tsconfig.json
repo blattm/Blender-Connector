@@ -7,6 +7,11 @@
         "noEmit": true,
         "tsBuildInfoFile": "./build/tsconfig.tsbuildinfo",
 
+        "allowJs": false,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+
         "strict": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitAny": true,
@@ -20,16 +25,11 @@
 
         "forceConsistentCasingInFileNames": true,
 
-        "allowJs": false,
-        "esModuleInterop": true,
-
         "sourceMap": true,
         "removeComments": true,
 
         "incremental": true,
-        "skipLibCheck": true,
-
-        "composite": true
+        "skipLibCheck": true
     },
     "include": [
         "./source/**/*.ts"
