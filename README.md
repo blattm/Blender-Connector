@@ -23,6 +23,7 @@ The BLE protocol is described in [documentation/blender_protocol.md](documentati
 - [ ] BLE Blender Server
 - [ ] Define an API to connect with (web) clients
 - [ ] Write web client + server
+- [ ] Customizable channel names 
 
 ## Legal / Disclaimer
 
