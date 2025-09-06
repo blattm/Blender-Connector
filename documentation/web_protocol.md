@@ -61,7 +61,7 @@ Complete state update (only sent directly after connection):
 ```json
 {
     "method": "state",
-    "scopes": [
+    "bundles": [
         {
             "scope": "global",
             "data": [
