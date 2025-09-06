@@ -3,8 +3,8 @@
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-hostName = "localhost"
-serverPort = 8080
+HOST_NAME = "localhost"
+SERVER_PORT = 8080
 
 class Path:
     file_path: str
@@ -78,8 +78,8 @@ class DebugWebServer(BaseHTTPRequestHandler):
             return None
 
 if __name__ == "__main__":
-    webServer = HTTPServer((hostName, serverPort), DebugWebServer)
-    print("Server started: http://%s:%s" % (hostName, serverPort))
+    webServer = HTTPServer((HOST_NAME, SERVER_PORT), DebugWebServer)
+    print("Server started: http://%s:%s" % (HOST_NAME, SERVER_PORT))
 
     try:
         webServer.serve_forever()
