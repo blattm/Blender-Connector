@@ -7,6 +7,8 @@ export class SettingElement extends BaseElement
     private button: HTMLButtonElement;
     private slider: HTMLInputElement;
 
+    private sliderMaximum: number;
+
     constructor (parent: Node)
     {
         super();
@@ -26,15 +28,22 @@ export class SettingElement extends BaseElement
             throw new Error("Slider element not found in SettingElement template.");
         }
         this.slider = sliderElement;
-    }
 
-    public setSliderValue (value: number): void
-    {
-        this.slider.value = value.toString();
+        this.sliderMaximum = Number.parseFloat(sliderElement.max);
     }
 
     public setButtonLabel (label: string): void
     {
         this.button.textContent = label;
+    }
+
+    public setState (state: boolean): void
+    {
+        this.setButtonState(this.button, state);
+    }
+
+    public setValue (value: number): void
+    {
+        this.slider.value = (value * this.sliderMaximum).toString();
     }
 }

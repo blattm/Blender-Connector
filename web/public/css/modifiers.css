@@ -1,0 +1,9 @@
+button.modifier-active
+{
+    color: blue;
+}
+
+button.modifier-inactive
+{
+    color: red;
+}

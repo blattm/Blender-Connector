@@ -7,6 +7,8 @@ export class MixerControlElement extends BaseElement
     private slider: HTMLInputElement;
     private button: HTMLButtonElement;
 
+    private sliderMaximum: number;
+
     constructor (parent: Node)
     {
         super();
@@ -26,15 +28,24 @@ export class MixerControlElement extends BaseElement
             throw new Error("Button element not found in MixerControl template");
         }
         this.button = buttonElement;
+
+        // TODO: Duplicate code from SettingElement:
+        this.sliderMaximum = Number.parseFloat(sliderElement.max);
     }
 
-    public setSliderValue (value: number): void
+    public setValue (value: number): void
     {
-        this.slider.value = value.toString();
+        // TODO: Duplicate code from SettingElement:
+        this.slider.value = (value * this.sliderMaximum).toString();
     }
 
     public setButtonLabel (label: string): void
     {
         this.button.textContent = label;
+    }
+
+    public setEnabled (enabled: boolean): void
+    {
+        this.slider.disabled = !enabled;
     }
 }
