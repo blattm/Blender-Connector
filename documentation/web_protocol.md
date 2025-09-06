@@ -57,7 +57,7 @@ Available keys:
 The same form as the client to server message, but with `"method": "notify"` instead of `"method": "set"`.
 Additionally the following message form is available:
 
-Complete state update (only sent directly after connection):
+Complete state update:
 ```json
 {
     "method": "state",
@@ -98,3 +98,5 @@ Complete state update (only sent directly after connection):
     ]
 }
 ```
+The server must always send the complete state directly after a client connects and before any other messages are sent. This is the only time the state is sent.
+The state must contain all values and must not be partial.
