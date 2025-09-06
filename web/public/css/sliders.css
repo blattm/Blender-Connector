@@ -27,7 +27,7 @@ input[type="range"][orient="horizontal"]
 input[type="range"][orient="vertical"]
 {
 	width: 100%;
-    writing-mode: vertical-lr;
+    writing-mode: sideways-lr;
 }
 
 input[type="range"]:focus-visible,
