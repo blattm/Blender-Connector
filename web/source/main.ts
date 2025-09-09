@@ -1,36 +1,21 @@
 import * as ApiEvents from './api/apiEvent';
 import { ApiHandler } from './api/apiHandler';
-import { MixerControlElement } from './elements/mixerControlElement';
-import { OutputButtonElement } from './elements/outputButtonElement';
-import { SettingElement } from './elements/settingElement';
+import { Gui } from './gui';
 import { WebSocketClient } from './api/websocketClient';
 
 class Main
 {
     private static readonly webSocketAddress = "localhost:8081";
-    private static readonly mixerCount = 6;
+    private static readonly outputCount = 4;
+    private static readonly inputCount = 6;
 
-    private muteSetting: SettingElement;
-    private microphoneSetting: SettingElement;
-    private compressorSetting: SettingElement;
-    private outputButtons: OutputButtonElement[];
-    private mixerControls: MixerControlElement[];
-
-    private apiHandler: ApiHandler;
-    private webSocketClient: WebSocketClient;
-
-    private state: ApiEvents.State;
-    private activeOutputId: number;
+    private readonly gui: Gui;
+    private readonly apiHandler: ApiHandler;
+    private readonly webSocketClient: WebSocketClient;
 
     constructor ()
     {
-        [this.muteSetting, this.microphoneSetting] = this.initialiseGlobalSettings();
-        [this.compressorSetting] = this.initialiseLocalSettings();
-        this.outputButtons = this.initialiseOutputButtons();
-        this.mixerControls = this.initialiseMixers();
-
-        this.state = null!; // One hack is allowed... it's okay if it throws should the api handle initialisation incorrectly.
-        this.activeOutputId = 0;
+        this.gui = new Gui(Main.inputCount, Main.outputCount);
 
         this.webSocketClient = new WebSocketClient();
         this.apiHandler = new ApiHandler(this.webSocketClient);
@@ -53,114 +38,26 @@ class Main
         this.webSocketClient.connect(Main.webSocketAddress);
     }
 
-    private initialiseGlobalSettings (): [muteSetting: SettingElement, roomMicrophoneSetting: SettingElement]
-    {
-        const globalSettingsContainer = document.getElementById("global-settings-container");
-        if (globalSettingsContainer === null)
-        {
-            throw new Error("Global settings container not found.");
-        }
-
-        const muteSetting = new SettingElement(globalSettingsContainer);
-        muteSetting.setButtonLabel("Mute");
-
-        const roomMicrophoneSetting = new SettingElement(globalSettingsContainer);
-        roomMicrophoneSetting.setButtonLabel("Microphone");
-
-        return [muteSetting, roomMicrophoneSetting];
-    }
-
-    private initialiseLocalSettings (): [compressorSetting: SettingElement]
-    {
-        const localSettingsContainer = document.getElementById("local-settings-container");
-        if (localSettingsContainer === null)
-        {
-            throw new Error("Local settings container not found.");
-        }
-
-        const compressorSetting = new SettingElement(localSettingsContainer);
-        compressorSetting.setButtonLabel("Compressor");
-
-        return [compressorSetting];
-    }
-
-    private initialiseOutputButtons (): OutputButtonElement[]
-    {
-        const inputButtons: OutputButtonElement[] = [];
-        const inputContainer = document.getElementById("output-container");
-        if (inputContainer === null)
-        {
-            throw new Error("Input container not found.");
-        }
-
-        const buttonLabels = ["A", "B", "C", "D"]; // TODO: This is bad and should be handled like the mixers count.
-        for (const label of buttonLabels)
-        {
-            const inputButton = new OutputButtonElement(inputContainer);
-            inputButton.setLabel(label);
-            inputButtons.push(inputButton);
-        }
-
-        return inputButtons;
-    }
-
-    private initialiseMixers (): MixerControlElement[]
-    {
-        const mixerControls: MixerControlElement[] = [];
-        const mixerContainer = document.getElementById("mixer-container");
-        if (mixerContainer === null)
-        {
-            throw new Error("Mixer container not found.");
-        }
-
-        for (let i = 0; i < Main.mixerCount; i++)
-        {
-            const mixerControl = new MixerControlElement(mixerContainer);
-            mixerControls.push(mixerControl);
-            mixerControl.setButtonLabel(`${i + 1}`);
-        }
-
-        return mixerControls;
-    }
-
     private onNotifyGlobalMicrophone (message: ApiEvents.GlobalMicrophone): void
     {
-        this.state.globalMicrophone = message;
-
-        this.microphoneSetting.setState(message.value);
+        this.gui.setMicrophone(message.value);
     }
 
     private onNotifyGlobalMuted (message: ApiEvents.GlobalMuted): void
     {
-        this.state.globalMuted = message;
-
-        this.muteSetting.setState(message.value);
+        this.gui.setMute(message.value);
     }
-
-    // TODO: It should be able to abstract over the following very similar functions, shouldn't it?
 
     private onNotifyOutputCompressorState (message: ApiEvents.OutputCompressorState): void
     {
         this.verifyOutputId(message.outputId);
-
-        this.state.outputCompressorStates[message.outputId] = message;
-
-        if (message.outputId === this.activeOutputId)
-        {
-            this.compressorSetting.setState(message.value);
-        }
+        this.gui.setCompressorState(message.outputId, message.value);
     }
 
     private onNotifyOutputCompressorValue (message: ApiEvents.OutputCompressorValue): void
     {
         this.verifyOutputId(message.outputId);
-
-        this.state.outputCompressorValues[message.outputId] = message;
-
-        if (message.outputId === this.activeOutputId)
-        {
-            this.compressorSetting.setValue(message.value);
-        }
+        this.gui.setCompressorValue(message.outputId, message.value);
     }
 
     private onNotifyOutputInputVolume (message: ApiEvents.OutputInputVolume): void
@@ -168,113 +65,87 @@ class Main
         this.verifyOutputId(message.outputId);
         this.verifyInputId(message.inputId);
 
-        this.state.outputInputVolumes[message.outputId][message.inputId] = message;
-
-        if (message.outputId === this.activeOutputId)
-        {
-            this.mixerControls[message.outputId].setValue(message.value);
-        }
+        this.gui.setInputVolume(message.outputId, message.inputId, message.value);
     }
 
     private onNotifyOutputMicrophoneVolume (message: ApiEvents.OutputMicrophoneVolume): void
     {
         this.verifyOutputId(message.outputId);
-
-        this.state.outputMicrophoneVolumes[message.outputId] = message;
-
-        if (message.outputId === this.activeOutputId)
-        {
-            this.mixerControls[message.outputId].setValue(message.value);
-        }
+        this.gui.setMicrophoneVolume(message.outputId, message.value);
     }
 
     private onNotifyOutputSoundVolume (message: ApiEvents.OutputSoundVolume): void
     {
         this.verifyOutputId(message.outputId);
-
-        this.state.outputSoundVolumes[message.outputId] = message;
-
-        if (message.outputId === this.activeOutputId)
-        {
-            this.mixerControls[message.outputId].setValue(message.value);
-        }
+        this.gui.setOutputVolume(message.outputId, message.value);
     }
 
     private onNotifyConnectionBlender (message: ApiEvents.ConnectionBlender): void
     {
-        this.state.connectionBlender = message;
-
-        console.warn("Blender connection event received, but not handled.");
-        // TODO: Implement.
+        console.warn("Blender connection event received, but not handled: ", message); // TODO: Implement.
     }
 
     private onNotifyConnectionInput (message: ApiEvents.ConnectionInput): void
     {
         this.verifyInputId(message.inputId);
-
-        this.state.connectionInputs[message.inputId] = message;
-
-        this.outputButtons[message.inputId].setEnabled(message.value);
+        this.gui.setInputConnection(message.inputId, message.value);
     }
 
     private onNotifyConnectionOutput (message: ApiEvents.ConnectionOutput): void
     {
         this.verifyOutputId(message.outputId);
-
-        this.state.connectionOutputs[message.outputId] = message;
-
-        this.mixerControls[message.outputId].setEnabled(message.value);
+        this.gui.setOutputConnection(message.outputId, message.value);
     }
 
     private onState (message: ApiEvents.State): void
     {
-        this.state = message;
+        this.onNotifyGlobalMicrophone(message.globalMicrophone);
+        this.onNotifyGlobalMuted(message.globalMuted);
 
-        console.log("State received:", message);
-
-        // TODO: This method mimics the onNotify methods. That's a bit unpleasant. How could it be improved?
-
-        this.microphoneSetting.setState(this.state.globalMicrophone.value);
-        this.muteSetting.setState(this.state.globalMuted.value);
-
-        for (const connectionInput of this.state.connectionInputs)
+        for (const outputCompressorState of message.outputCompressorStates)
         {
-            this.verifyInputId(connectionInput.inputId);
-
-            this.mixerControls[connectionInput.inputId].setEnabled(connectionInput.value);
+            this.onNotifyOutputCompressorState(outputCompressorState);
         }
 
-        for (const connectionOutput of this.state.connectionOutputs)
+        for (const outputCompressorValue of message.outputCompressorValues)
         {
-            this.verifyOutputId(connectionOutput.outputId);
-
-            this.outputButtons[connectionOutput.outputId].setEnabled(connectionOutput.value);
+            this.onNotifyOutputCompressorValue(outputCompressorValue);
         }
 
-        // TODO: Set blender connection state.
-
-        this.compressorSetting.setState(this.state.outputCompressorStates[this.activeOutputId].value);
-        this.compressorSetting.setValue(this.state.outputCompressorValues[this.activeOutputId].value);
-
-        for (const outputInputVolume of this.state.outputInputVolumes[this.activeOutputId])
+        for (const outputInputVolumes of message.outputInputVolumes)
         {
-            this.verifyOutputId(outputInputVolume.outputId);
-            this.verifyInputId(outputInputVolume.inputId);
-            this.mixerControls[outputInputVolume.inputId].setValue(outputInputVolume.value);
+            for (const outputInputVolume of outputInputVolumes)
+            {
+                this.onNotifyOutputInputVolume(outputInputVolume);
+            }
         }
 
-        const outputMicrophoneVolume = this.state.outputMicrophoneVolumes[this.activeOutputId];
-        this.verifyOutputId(outputMicrophoneVolume.outputId);
-        this.microphoneSetting.setValue(outputMicrophoneVolume.value);
+        for (const outputMicrophoneVolume of message.outputMicrophoneVolumes)
+        {
+            this.onNotifyOutputMicrophoneVolume(outputMicrophoneVolume);
+        }
 
-        const outputSoundVolume = this.state.outputSoundVolumes[this.activeOutputId];
-        this.verifyOutputId(outputSoundVolume.outputId);
-        this.muteSetting.setValue(outputSoundVolume.value);
+        for (const outputSoundVolume of message.outputSoundVolumes)
+        {
+            this.onNotifyOutputSoundVolume(outputSoundVolume);
+        }
+
+        this.onNotifyConnectionBlender(message.connectionBlender);
+
+        for (const connectionInput of message.connectionInputs)
+        {
+            this.onNotifyConnectionInput(connectionInput);
+        }
+
+        for (const connectionOutput of message.connectionOutputs)
+        {
+            this.onNotifyConnectionOutput(connectionOutput);
+        }
     }
 
     private verifyInputId (inputId: number): void
     {
-        if (inputId < 0 || inputId >= this.mixerControls.length || !Number.isInteger(inputId))
+        if (inputId < 0 || inputId >= Main.inputCount || !Number.isInteger(inputId))
         {
             throw new Error(`Input ID ${inputId} is out of range.`);
         }
@@ -282,7 +153,7 @@ class Main
 
     private verifyOutputId (outputId: number): void
     {
-        if (outputId < 0 || outputId >= this.outputButtons.length || !Number.isInteger(outputId))
+        if (outputId < 0 || outputId >= Main.outputCount || !Number.isInteger(outputId))
         {
             throw new Error(`Output ID ${outputId} is out of range.`);
         }
