@@ -74,7 +74,7 @@ if __name__ == "__main__":
         server = WebSocketServer()
         asyncio.get_event_loop().run_in_executor(None, asyncio.run, server.start())
 
-        print(f"Server started at ws://{HOST_NAME}:{SERVER_PORT}")
+        print(f"Server started at: ws://{HOST_NAME}:{SERVER_PORT}")
 
         while True:
             file_name = input()

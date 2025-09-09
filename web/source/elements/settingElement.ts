@@ -2,12 +2,12 @@ import { BaseElement } from './baseElement';
 
 export class SettingElement extends BaseElement
 {
-    private static template = document.getElementById("setting-template") as HTMLTemplateElement|null;
+    private static readonly template = document.getElementById("setting-template") as HTMLTemplateElement|null;
 
-    private button: HTMLButtonElement;
-    private slider: HTMLInputElement;
+    private readonly button: HTMLButtonElement;
+    private readonly slider: HTMLInputElement;
 
-    private sliderMaximum: number;
+    private readonly sliderMaximum: number;
 
     constructor (parent: Node)
     {

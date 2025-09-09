@@ -37,8 +37,6 @@ class DebugWebServer(BaseHTTPRequestHandler):
             self.end_headers()
             return
 
-        global_path = os.path.dirname(os.path.abspath(__file__)) + path.file_path
-        # Use the path class to join the paths instead:
         global_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"..{path.file_path}")
 
         content = self._get_file_content(global_path)
@@ -79,7 +77,7 @@ class DebugWebServer(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     webServer = HTTPServer((HOST_NAME, SERVER_PORT), DebugWebServer)
-    print("Server started: http://%s:%s" % (HOST_NAME, SERVER_PORT))
+    print("Server started at: http://%s:%s" % (HOST_NAME, SERVER_PORT))
 
     try:
         webServer.serve_forever()

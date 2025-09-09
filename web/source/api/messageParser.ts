@@ -55,6 +55,11 @@ enum ServerToClientPayloadMethod
     State = 'state',
 }
 
+/**
+ * Parses a JSON string into a message object.
+ * @param data The JSON string to parse.
+ * @returns The parsed message object, or null if the parsing failed.
+ */
 export function parse (data: string): Messages.Message|null
 {
     let jsonObject: unknown;

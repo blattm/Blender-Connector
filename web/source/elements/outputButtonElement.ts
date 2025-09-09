@@ -2,9 +2,9 @@ import { BaseElement } from './baseElement';
 
 export class OutputButtonElement extends BaseElement
 {
-    private static template = document.getElementById("output-button-template") as HTMLTemplateElement|null;
+    private static readonly template = document.getElementById("output-button-template") as HTMLTemplateElement|null;
 
-    private button: HTMLButtonElement;
+    private readonly button: HTMLButtonElement;
 
     constructor (parent: Node)
     {

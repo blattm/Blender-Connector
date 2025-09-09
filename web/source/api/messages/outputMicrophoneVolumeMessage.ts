@@ -1,6 +1,9 @@
 import { BaseMessage } from './baseMessage';
 import { MessageType } from '../messageType';
 
+/**
+ * Message to set the microphone volume for a specific output.
+ */
 export class OutputMicrophoneVolumeMessage extends BaseMessage
 {
     public override readonly type: MessageType.OutputMicrophoneVolume;

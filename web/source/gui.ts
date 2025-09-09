@@ -3,6 +3,9 @@ import { MixerControlElement } from './elements/mixerControlElement';
 import { OutputButtonElement } from './elements/outputButtonElement';
 import { SettingElement } from './elements/settingElement';
 
+/**
+ * Provides an interface to the GUI, i.e. creating and updating HTML elements.
+ */
 export class Gui
 {
     private readonly muteSetting: SettingElement;
@@ -122,26 +125,48 @@ export class Gui
         }
     }
 
+    /**
+     * Enable or disable the muting.
+     * @param value True to mute, false to unmute.
+     */
     public setMute (value: boolean): void
     {
         this.muteSetting.setState(value);
     }
 
+    /**
+     * Set the volume for a specific output.
+     * @param outputId The output ID.
+     * @param value The volume level, ranges from 0.0 to 1.0.
+     */
     public setOutputVolume (outputId: number, value: number): void
     {
         this.update(outputId, this.outputVolumes, value, this.muteSetting.setValue.bind(this.muteSetting));
     }
 
+    /**
+     * Enable or disable the microphone.
+     * @param value True to enable, false to disable.
+     */
     public setMicrophone (value: boolean): void
     {
         this.microphoneSetting.setState(value);
     }
 
+    /**
+     * Set the microphone volume for a specific output.
+     * @param outputId The output ID.
+     * @param value The volume level, ranges from 0.0 to 1.0.
+     */
     public setMicrophoneVolume (outputId: number, value: number): void
     {
         this.update(outputId, this.microphoneVolumes, value, this.microphoneSetting.setValue.bind(this.microphoneSetting));
     }
 
+    /** Enable or disable the connection to a specific output.
+     * @param outputId The output ID.
+     * @param value True to enable, false to disable.
+     */
     public setOutputConnection (outputId: number, value: boolean): void
     {
         this.outputButtons[outputId].setEnabled(value);
@@ -149,11 +174,22 @@ export class Gui
         // TODO: Should we switch automatically to the next available output or disable all elements?
     }
 
+    /**
+     * Enable or disable the connection to a specific input.
+     * @param inputId The input ID.
+     * @param value True to enable, false to disable.
+     */
     public setInputConnection (inputId: number, value: boolean): void
     {
         this.inputControls[inputId].setEnabled(value);
     }
 
+    /**
+     * Set the volume for a specific input on a specific output.
+     * @param outputId The output ID.
+     * @param inputId The input ID.
+     * @param value The volume level, ranges from 0.0 to 1.0.
+     */
     public setInputVolume (outputId: number, inputId: number, value: number): void
     {
         this.inputVolumes[outputId][inputId] = value;
@@ -164,11 +200,20 @@ export class Gui
         }
     }
 
+    /** Enable or disable the compressor for a specific output.
+     * @param outputId The output ID.
+     * @param value True to enable, false to disable.
+     */
     public setCompressorState (outputId: number, value: boolean): void
     {
         this.update(outputId, this.compressorStates, value, this.compressorSetting.setState.bind(this.compressorSetting));
     }
 
+    /**
+     * Set the compressor value for a specific output.
+     * @param outputId The output ID.
+     * @param value The compressor value, ranges from 0.0 to 1.0.
+     */
     public setCompressorValue (outputId: number, value: number): void
     {
         this.update(outputId, this.compressorValues, value, this.compressorSetting.setValue.bind(this.compressorSetting));

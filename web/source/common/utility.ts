@@ -1,3 +1,9 @@
+/**
+ * Checks if a given value is a valid member of the specified enum object.
+ * @param enumObject The enum object to check against.
+ * @param value The value to check.
+ * @returns True if the value is a valid enum member, false otherwise.
+ */
 export function isEnumValue<T extends Record<string, unknown>> (enumObject: T, value: unknown): value is T[keyof T]
 {
     if (typeof value !== 'string' && typeof value !== 'number')

@@ -2,12 +2,12 @@ import { BaseElement } from './baseElement';
 
 export class MixerControlElement extends BaseElement
 {
-    private static template = document.getElementById("mixer-control-template") as HTMLTemplateElement|null;
+    private static readonly template = document.getElementById("mixer-control-template") as HTMLTemplateElement|null;
 
-    private slider: HTMLInputElement;
-    private button: HTMLButtonElement;
+    private readonly slider: HTMLInputElement;
+    private readonly button: HTMLButtonElement;
 
-    private sliderMaximum: number;
+    private readonly sliderMaximum: number;
 
     constructor (parent: Node)
     {

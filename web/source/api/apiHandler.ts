@@ -11,7 +11,7 @@ import type { WebSocketClient } from './websocketClient';
 
 export class ApiHandler
 {
-    private client: WebSocketClient;
+    private readonly client: WebSocketClient;
 
     public onNotifyGlobalMicrophone: ((message: ApiEvents.GlobalMicrophone) => void)|null;
     public onNotifyGlobalMuted: ((message: ApiEvents.GlobalMuted) => void)|null;

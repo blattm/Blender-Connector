@@ -1,6 +1,9 @@
 import { BaseMessage } from './baseMessage';
 import { MessageType } from '../messageType';
 
+/**
+ * Message to set the compressor value for a specific output.
+ */
 export class OutputCompressorValueMessage extends BaseMessage
 {
     public override readonly type: MessageType.OutputCompressorValue;

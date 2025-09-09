@@ -2,6 +2,9 @@ import * as Messages from '.';
 import { BaseMessage } from './baseMessage';
 import { MessageType } from '../messageType';
 
+/**
+ * Message containing the protocol's complete state.
+ */
 export class StateMessage extends BaseMessage
 {
     public override readonly type: MessageType.State;
