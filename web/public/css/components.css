@@ -1,7 +1,16 @@
+/* #### Sliders #### */
+
+@property --translucency
+{
+    syntax: '<percentage>';
+    initial-value: 0%;
+    inherits: false;
+}
+
 input[type="range"]
 {
     --selected-range-colour: #3780D6;
-    --unselected-range-colour: #ABABAB;
+    --unselected-range-colour: #1C1B1D;
     --line-thickness: 0.5rem;
     --thumb-size: 1.8rem;
 
@@ -17,6 +26,8 @@ input[type="range"]
     overflow: hidden;
 
     cursor: pointer;
+
+    transition: --translucency var(--common-transition-time) ease;
 }
 
 input[type="range"][orient="horizontal"]
@@ -44,7 +55,8 @@ input[type="range"]::-moz-range-thumb {
         linear-gradient(90deg, var(--colour-gradient) 50%, var(--unselected-range-colour) 0)
         0 1/calc(50% - var(--line-thickness)/2) 100vw/0 100vw;
     appearance: none;
-    transition: 0.3s;
+
+    transition: background var(--common-transition-time) ease;
 }
 input[type="range"][orient="vertical"]::-moz-range-thumb {
     rotate: 270deg;
@@ -60,8 +72,35 @@ input[type="range"]::-webkit-slider-thumb {
         0 1/calc(50% - var(--line-thickness)/2) 100vw/0 100vw;
     -webkit-appearance: none;
     appearance: none;
-    transition: 0.3s;
+
+    /* FIXME: In Chromium this seems to run in sequence (the thumb after the track) and not simultaneously like in Firefox: */
+    transition: background var(--common-transition-time) ease;
 }
 input[type="range"][orient="vertical"]::-webkit-slider-thumb {
     rotate: 270deg;
+}
+
+/* #### Buttons #### */
+
+button
+{
+    min-width: 3rem;
+    min-height: 3rem;
+
+    background-color: var(--common-background-colour);
+    border-color: var(--common-border-colour);
+    color: var(--common-text-colour);
+
+    border-radius: 0.25rem;
+    border-style: solid;
+
+    font-weight: bold;
+}
+
+button:hover
+{
+    background-color: rgb(from var(--common-background-colour) calc(r + 12) calc(g + 12) calc(b + 12));
+    border-color: rgb(from var(--common-border-colour) calc(r + 8) calc(g + 8) calc(b + 8));
+    color: rgb(from var(--common-text-colour) calc(r + 56) calc(g + 56) calc(b + 56));
+    transition: var(--common-transition-time);
 }
