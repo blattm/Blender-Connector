@@ -2,6 +2,9 @@ import * as Messages from './messages';
 import * as Utility from '../common/utility';
 import { MessageType } from './messageType';
 
+// TODO: Use the new ApiTyping module in the parse functions.
+// type PartialMessageObject = Partial<ApiMessageObject>;
+
 enum PropertyName
 {
     Bundles = 'bundles',

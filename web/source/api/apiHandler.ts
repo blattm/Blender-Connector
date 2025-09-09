@@ -4,11 +4,6 @@ import { MessageType } from './messageType';
 import { NotImplementedError } from '../common/notImplementedError';
 import type { WebSocketClient } from './websocketClient';
 
-//enum ClientToServerPayloadMethod
-//{
-//    Set = 'set',
-//}
-
 export class ApiHandler
 {
     private readonly client: WebSocketClient;
