@@ -1,10 +1,4 @@
-enum ModifierClassNames
-{
-    Active = "modifier-active",
-    Inactive = "modifier-inactive",
-}
-
-export abstract class BaseElement
+export class BaseElement
 {
     protected instantiateTemplate (parent: Node, template: HTMLTemplateElement|null): HTMLElement
     {
@@ -28,31 +22,5 @@ export abstract class BaseElement
         parent.appendChild(documentFragment);
 
         return rootElement;
-    }
-
-    protected setButtonState (button: HTMLButtonElement, active: boolean): void
-    {
-        let classToBeRemoved: ModifierClassNames;
-        let classToBeAdded: ModifierClassNames;
-        if (active)
-        {
-            classToBeRemoved = ModifierClassNames.Inactive;
-            classToBeAdded = ModifierClassNames.Active;
-        }
-        else
-        {
-            classToBeRemoved = ModifierClassNames.Active;
-            classToBeAdded = ModifierClassNames.Inactive;
-        }
-
-        if (button.classList.contains(classToBeRemoved))
-        {
-            button.classList.remove(classToBeRemoved);
-        }
-
-        if (!button.classList.contains(classToBeAdded))
-        {
-            button.classList.add(classToBeAdded);
-        }
     }
 }

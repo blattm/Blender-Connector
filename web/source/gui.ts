@@ -89,7 +89,7 @@ export class Gui
         for (let i = 0; i < outputCount; i++)
         {
             const inputButton = new OutputButtonElement(inputContainer);
-            inputButton.setLabel(`O${i + 1}`);
+            inputButton.setButtonLabel(`O${i + 1}`);
             inputButtons.push(inputButton);
         }
 
@@ -131,7 +131,7 @@ export class Gui
      */
     public setMute (value: boolean): void
     {
-        this.muteSetting.setState(value);
+        this.muteSetting.setButtonState(value);
     }
 
     /**
@@ -141,7 +141,7 @@ export class Gui
      */
     public setOutputVolume (outputId: number, value: number): void
     {
-        this.update(outputId, this.outputVolumes, value, this.muteSetting.setValue.bind(this.muteSetting));
+        this.update(outputId, this.outputVolumes, value, this.muteSetting.setSliderValue.bind(this.muteSetting));
     }
 
     /**
@@ -150,7 +150,7 @@ export class Gui
      */
     public setMicrophone (value: boolean): void
     {
-        this.microphoneSetting.setState(value);
+        this.microphoneSetting.setButtonState(value);
     }
 
     /**
@@ -160,7 +160,7 @@ export class Gui
      */
     public setMicrophoneVolume (outputId: number, value: number): void
     {
-        this.update(outputId, this.microphoneVolumes, value, this.microphoneSetting.setValue.bind(this.microphoneSetting));
+        this.update(outputId, this.microphoneVolumes, value, this.microphoneSetting.setSliderValue.bind(this.microphoneSetting));
     }
 
     /** Enable or disable the connection to a specific output.
@@ -169,7 +169,7 @@ export class Gui
      */
     public setOutputConnection (outputId: number, value: boolean): void
     {
-        this.outputButtons[outputId].setEnabled(value);
+        this.outputButtons[outputId].setButtonEnabled(value);
 
         // TODO: Should we switch automatically to the next available output or disable all elements?
     }
@@ -196,7 +196,7 @@ export class Gui
 
         if (outputId === this.activeOutputId)
         {
-            this.inputControls[inputId].setValue(value);
+            this.inputControls[inputId].setSliderValue(value);
         }
     }
 
@@ -206,7 +206,7 @@ export class Gui
      */
     public setCompressorState (outputId: number, value: boolean): void
     {
-        this.update(outputId, this.compressorStates, value, this.compressorSetting.setState.bind(this.compressorSetting));
+        this.update(outputId, this.compressorStates, value, this.compressorSetting.setButtonState.bind(this.compressorSetting));
     }
 
     /**
@@ -216,6 +216,6 @@ export class Gui
      */
     public setCompressorValue (outputId: number, value: number): void
     {
-        this.update(outputId, this.compressorValues, value, this.compressorSetting.setValue.bind(this.compressorSetting));
+        this.update(outputId, this.compressorValues, value, this.compressorSetting.setSliderValue.bind(this.compressorSetting));
     }
 }

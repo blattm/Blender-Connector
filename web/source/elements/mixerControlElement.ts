@@ -1,13 +1,10 @@
 import { BaseElement } from './baseElement';
+import { buttonMixing } from './components/buttonComponent';
+import { sliderMixing } from './components/sliderComponent';
 
-export class MixerControlElement extends BaseElement
+export class MixerControlElement extends sliderMixing(buttonMixing(BaseElement))
 {
     private static readonly template = document.getElementById("mixer-control-template") as HTMLTemplateElement|null;
-
-    private readonly slider: HTMLInputElement;
-    private readonly button: HTMLButtonElement;
-
-    private readonly sliderMaximum: number;
 
     constructor (parent: Node)
     {
@@ -15,37 +12,13 @@ export class MixerControlElement extends BaseElement
 
         const rootElement = this.instantiateTemplate(parent, MixerControlElement.template);
 
-        const sliderElement = rootElement.firstElementChild;
-        if (sliderElement === null || !(sliderElement instanceof HTMLInputElement) || sliderElement.type !== "range")
-        {
-            throw new Error("Slider element not found in MixerControl template");
-        }
-        this.slider = sliderElement;
-
-        const buttonElement = rootElement.lastElementChild;
-        if (buttonElement === null || !(buttonElement instanceof HTMLButtonElement))
-        {
-            throw new Error("Button element not found in MixerControl template");
-        }
-        this.button = buttonElement;
-
-        // TODO: Duplicate code from SettingElement:
-        this.sliderMaximum = Number.parseFloat(sliderElement.max);
-    }
-
-    public setValue (value: number): void
-    {
-        // TODO: Duplicate code from SettingElement:
-        this.slider.value = (value * this.sliderMaximum).toString();
-    }
-
-    public setButtonLabel (label: string): void
-    {
-        this.button.textContent = label;
+        this.initialiseSlider(rootElement);
+        this.initialiseButton(rootElement);
     }
 
     public setEnabled (enabled: boolean): void
     {
-        this.slider.disabled = !enabled;
+        this.setSliderEnabled(enabled);
+        this.setButtonEnabled(enabled);
     }
 }
