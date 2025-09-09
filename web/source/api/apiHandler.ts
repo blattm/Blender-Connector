@@ -1,7 +1,7 @@
 import * as ApiEvents from './apiEvent';
+import * as ApiTyping from './apiTyping';
 import * as MessageParser from './messageParser';
 import { MessageType } from './messageType';
-import { NotImplementedError } from '../common/notImplementedError';
 import type { WebSocketClient } from './websocketClient';
 
 export class ApiHandler
@@ -51,6 +51,7 @@ export class ApiHandler
 
         if (message === null)
         {
+            console.error('ApiHandler: Unable to parse message: ', data);
             return;
         }
 
@@ -92,43 +93,118 @@ export class ApiHandler
         }
     }
 
-    //private sendMessage (message: Messages.Message): void
-    //{
-    //    throw new NotImplementedError(); // TODO: Implement.
-    //}
+    private sendMessage (messageObject: ApiTyping.ApiSetObject): void
+    {
+        const messageString = JSON.stringify(messageObject);
+        this.client.send(messageString);
+    }
 
     public setMuted (value: boolean): void
     {
-        throw new NotImplementedError(`${value}`); // TODO: Implement.
+        const messageObject: ApiTyping.ApiSetObject =
+        {
+            method: ApiTyping.Method.Set,
+            scope: ApiTyping.Scope.Global,
+            key: ApiTyping.Key.Muted,
+            value: value,
+        };
+
+        this.sendMessage(messageObject);
     }
 
     public setMicrophone (enabled: boolean): void
     {
-        throw new NotImplementedError(`${enabled}`); // TODO: Implement.
+        const messageObject: ApiTyping.ApiSetObject =
+        {
+            method: ApiTyping.Method.Set,
+            scope: ApiTyping.Scope.Global,
+            key: ApiTyping.Key.Microphone,
+            value: enabled,
+        };
+
+        this.sendMessage(messageObject);
     }
 
     public setSoundVolume (outputId: number, volume: number): void
     {
-        throw new NotImplementedError(`${outputId}-${volume}`); // TODO: Implement.
+        const messageObject: ApiTyping.ApiSetObject =
+        {
+            method: ApiTyping.Method.Set,
+            scope: {
+                type: ApiTyping.ChannelType.Output,
+                id: outputId,
+            },
+            key: ApiTyping.Key.SoundVolume,
+            value: volume,
+        };
+
+        this.sendMessage(messageObject);
     }
 
     public setMicrophoneVolume (outputId: number, volume: number): void
     {
-        throw new NotImplementedError(`${outputId}-${volume}`); // TODO: Implement.
+        const messageObject: ApiTyping.ApiSetObject =
+        {
+            method: ApiTyping.Method.Set,
+            scope: {
+                type: ApiTyping.ChannelType.Output,
+                id: outputId,
+            },
+            key: ApiTyping.Key.MicrophoneVolume,
+            value: volume,
+        };
+
+        this.sendMessage(messageObject);
     }
 
     public setCompressorState (outputId: number, enabled: boolean): void
     {
-        throw new NotImplementedError(`${outputId}-${enabled}`); // TODO: Implement.
+        const messageObject: ApiTyping.ApiSetObject =
+        {
+            method: ApiTyping.Method.Set,
+            scope: {
+                type: ApiTyping.ChannelType.Output,
+                id: outputId,
+            },
+            key: ApiTyping.Key.CompressorState,
+            value: enabled,
+        };
+
+        this.sendMessage(messageObject);
     }
 
     public setCompressorValue (outputId: number, value: number): void
     {
-        throw new NotImplementedError(`${outputId}-${value}`); // TODO: Implement.
+        const messageObject: ApiTyping.ApiSetObject =
+        {
+            method: ApiTyping.Method.Set,
+            scope: {
+                type: ApiTyping.ChannelType.Output,
+                id: outputId,
+            },
+            key: ApiTyping.Key.CompressorValue,
+            value: value,
+        };
+
+        this.sendMessage(messageObject);
     }
 
     public setInput (outputId: number, inputId: number, value: number): void
     {
-        throw new NotImplementedError(`${outputId}:${inputId}-${value}`); // TODO: Implement.
+        const messageObject: ApiTyping.ApiSetObject =
+        {
+            method: ApiTyping.Method.Set,
+            scope: {
+                type: ApiTyping.ChannelType.Output,
+                id: outputId,
+            },
+            key: {
+                type: ApiTyping.ChannelType.Input,
+                id: inputId,
+            },
+            value: value,
+        };
+
+        this.sendMessage(messageObject);
     }
 }

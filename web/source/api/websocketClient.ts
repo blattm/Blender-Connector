@@ -63,15 +63,13 @@ export class WebSocketClient
         }
     }
 
-    public send (data: object): void
+    public send (data: string): void
     {
         if (this.websocket === null)
         {
             throw new Error("WebSocket is not connected.");
         }
 
-        const stringifiedData = JSON.stringify(data);
-
-        this.websocket.send(stringifiedData);
+        this.websocket.send(data);
     }
 }
