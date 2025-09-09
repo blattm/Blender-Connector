@@ -1,3 +1,13 @@
+/* #### Common #### */
+
+button:disabled,
+input[type="range"]:disabled
+{
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
 /* #### Sliders #### */
 
 @property --translucency
@@ -25,9 +35,14 @@ input[type="range"]
     background: none;
     overflow: hidden;
 
-    cursor: pointer;
+    cursor: grab;
 
     transition: --translucency var(--common-transition-time) ease;
+}
+
+input[type="range"]:active
+{
+    cursor: grabbing;
 }
 
 input[type="range"][orient="horizontal"]
@@ -41,8 +56,7 @@ input[type="range"][orient="vertical"]
     writing-mode: sideways-lr;
 }
 
-input[type="range"]:focus-visible,
-input[type="range"]:hover {
+input[type="range"]:not(:disabled):hover {
     --translucency: 25%;
 }
 
@@ -97,7 +111,7 @@ button
     font-weight: bold;
 }
 
-button:hover
+button:not(:disabled):hover
 {
     background-color: rgb(from var(--common-background-colour) calc(r + 12) calc(g + 12) calc(b + 12));
     border-color: rgb(from var(--common-border-colour) calc(r + 8) calc(g + 8) calc(b + 8));
