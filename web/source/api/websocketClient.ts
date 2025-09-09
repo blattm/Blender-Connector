@@ -1,4 +1,5 @@
-// TODO: All this class does is adding "ws://" to the address and parsing/stringifying JSON. Is it really necessary?
+// TODO: All this class does is adding "ws://" to the address. Is it really necessary?
+// TODO: The autoconnect feature could be moved here.
 
 export class WebSocketClient
 {
@@ -11,8 +12,8 @@ export class WebSocketClient
         this.onConnectedCallback = callback;
     }
 
-    private onMessageCallback: ((data: object) => void)|null;
-    public set onMessage (callback: (data: object) => void)
+    private onMessageCallback: ((data: string) => void)|null;
+    public set onMessage (callback: (data: string) => void)
     {
         this.onMessageCallback = callback;
     }
@@ -30,20 +31,6 @@ export class WebSocketClient
         this.onDisconnectedCallback = null;
         this.websocket = null;
         this.url = null;
-    }
-
-    private parseAndDispatchMessage (data: string): void
-    {
-        if (this.onMessageCallback === null)
-        {
-            return;
-        }
-
-        const parsedData: unknown = JSON.parse(data);
-        if (typeof parsedData === 'object' && parsedData !== null)
-        {
-            this.onMessageCallback(parsedData);
-        }
     }
 
     public connect (address: string): void
@@ -64,7 +51,7 @@ export class WebSocketClient
 
         this.websocket.onopen = (): void => this.onConnectedCallback?.();
         this.websocket.onclose = (): void => this.onDisconnectedCallback?.();
-        this.websocket.onmessage = (event: MessageEvent<string>): void => this.parseAndDispatchMessage(event.data);
+        this.websocket.onmessage = (event: MessageEvent<string>): void => this.onMessageCallback?.(event.data);
     }
 
     public close (): void
