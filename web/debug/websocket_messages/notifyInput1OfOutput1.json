@@ -1,0 +1,12 @@
+{
+    "method": "notify",
+    "scope": {
+        "type": "output",
+        "id": 0
+    },
+    "key": {
+        "type": "input",
+        "id": 0
+    },
+    "value": 0.25
+}

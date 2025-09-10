@@ -31,6 +31,14 @@ class Main
         this.apiHandler.onNotifyConnectionInput = this.onNotifyConnectionInput.bind(this);
         this.apiHandler.onNotifyConnectionOutput = this.onNotifyConnectionOutput.bind(this);
         this.apiHandler.onState = this.onState.bind(this);
+
+        this.gui.onMicrophoneChanged = this.apiHandler.setMicrophone.bind(this.apiHandler);
+        this.gui.onMuteChanged = this.apiHandler.setMuted.bind(this.apiHandler);
+        this.gui.onCompressorStateChanged = this.apiHandler.setCompressorState.bind(this.apiHandler);
+        this.gui.onCompressorValueChanged = this.apiHandler.setCompressorValue.bind(this.apiHandler);
+        this.gui.onInputVolumeChanged = this.apiHandler.setInput.bind(this.apiHandler);
+        this.gui.onMicrophoneVolumeChanged = this.apiHandler.setMicrophoneVolume.bind(this.apiHandler);
+        this.gui.onOutputVolumeChanged = this.apiHandler.setSoundVolume.bind(this.apiHandler);
     }
 
     public run (): void

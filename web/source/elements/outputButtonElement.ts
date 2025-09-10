@@ -1,7 +1,7 @@
 import { BaseElement } from './baseElement';
-import { buttonMixing } from './components/buttonComponent';
+import { buttonMixin } from './mixins/buttonMixin';
 
-export class OutputButtonElement extends buttonMixing(BaseElement)
+export class OutputButtonElement extends buttonMixin(BaseElement)
 {
     private static readonly template = document.getElementById("output-button-template") as HTMLTemplateElement|null;
 

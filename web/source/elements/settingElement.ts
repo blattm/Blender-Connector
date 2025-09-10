@@ -1,8 +1,8 @@
 import { BaseElement } from './baseElement';
-import { buttonMixing } from './components/buttonComponent';
-import { sliderMixing } from './components/sliderComponent';
+import { buttonMixin } from './mixins/buttonMixin';
+import { sliderMixin } from './mixins/sliderMixin';
 
-export class SettingElement extends buttonMixing(sliderMixing(BaseElement))
+export class SettingElement extends buttonMixin(sliderMixin(BaseElement))
 {
     private static readonly template = document.getElementById("setting-template") as HTMLTemplateElement|null;
 

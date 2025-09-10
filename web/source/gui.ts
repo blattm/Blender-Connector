@@ -31,6 +31,72 @@ export class Gui
     /** Stores the compressor value per output ID. */
     private readonly compressorValues: number[];
 
+    public set onMuteChanged (handler: ((value: boolean) => void))
+    {
+        this.muteSetting.onButtonClicked = (): void =>
+        {
+            handler(this.muteSetting.buttonState);
+        };
+    }
+
+    public set onOutputVolumeChanged (handler: ((outputId: number, value: number) => void))
+    {
+        this.muteSetting.onSliderChanged = (): void =>
+        {
+            this.outputVolumes[this.activeOutputId] = this.muteSetting.sliderValue;
+            handler(this.activeOutputId, this.muteSetting.sliderValue);
+        };
+    }
+
+    public set onMicrophoneChanged (handler: ((value: boolean) => void))
+    {
+        this.microphoneSetting.onButtonClicked = (): void =>
+        {
+            handler(this.microphoneSetting.buttonState);
+        };
+    }
+
+    public set onMicrophoneVolumeChanged (handler: ((outputId: number, value: number) => void))
+    {
+        this.microphoneSetting.onSliderChanged = (): void =>
+        {
+            this.microphoneVolumes[this.activeOutputId] = this.microphoneSetting.sliderValue;
+            handler(this.activeOutputId, this.microphoneSetting.sliderValue);
+        };
+    }
+
+    public set onInputVolumeChanged (handler: ((outputId: number, inputId: number, value: number) => void))
+    {
+        for (let inputId = 0; inputId < this.inputControls.length; inputId++)
+        {
+            const inputControl = this.inputControls[inputId];
+
+            inputControl.onSliderChanged = (): void =>
+            {
+                this.inputVolumes[this.activeOutputId][inputId] = inputControl.sliderValue;
+                handler(this.activeOutputId, inputId, inputControl.sliderValue);
+            };
+        }
+    }
+
+    public set onCompressorStateChanged (handler: ((outputId: number, value: boolean) => void))
+    {
+        this.compressorSetting.onButtonClicked = (): void =>
+        {
+            this.compressorStates[this.activeOutputId] = this.compressorSetting.buttonState;
+            handler(this.activeOutputId, this.compressorSetting.buttonState);
+        };
+    }
+
+    public set onCompressorValueChanged (handler: ((outputId: number, value: number) => void))
+    {
+        this.compressorSetting.onSliderChanged = (): void =>
+        {
+            this.compressorValues[this.activeOutputId] = this.compressorSetting.sliderValue;
+            handler(this.activeOutputId, this.compressorSetting.sliderValue);
+        };
+    }
+
     constructor (inputCount: number, outputCount: number)
     {
         [this.muteSetting, this.microphoneSetting] = this.initialiseGlobalSettings();
@@ -55,10 +121,10 @@ export class Gui
         }
 
         const muteSetting = new SettingElement(globalSettingsContainer);
-        muteSetting.setButtonLabel("Mute");
+        muteSetting.buttonLabel = "Mute";
 
         const roomMicrophoneSetting = new SettingElement(globalSettingsContainer);
-        roomMicrophoneSetting.setButtonLabel("Microphone");
+        roomMicrophoneSetting.buttonLabel = "Microphone";
 
         return [muteSetting, roomMicrophoneSetting];
     }
@@ -72,7 +138,7 @@ export class Gui
         }
 
         const compressorSetting = new SettingElement(localSettingsContainer);
-        compressorSetting.setButtonLabel("Compressor");
+        compressorSetting.buttonLabel = "Compressor";
 
         return [compressorSetting];
     }
@@ -86,11 +152,14 @@ export class Gui
             throw new Error("Input container not found.");
         }
 
-        for (let i = 0; i < outputCount; i++)
+        for (let outputId = 0; outputId < outputCount; outputId++)
         {
-            const inputButton = new OutputButtonElement(inputContainer);
-            inputButton.setButtonLabel(`O${i + 1}`);
-            inputButtons.push(inputButton);
+            const outputButton = new OutputButtonElement(inputContainer);
+            outputButton.buttonLabel = `O${outputId + 1}`;
+            outputButton.buttonState = (outputId === 0);
+            outputButton.onButtonClicked = this.changeActiveOutput.bind(this, outputId);
+
+            inputButtons.push(outputButton);
         }
 
         return inputButtons;
@@ -105,24 +174,14 @@ export class Gui
             throw new Error("Mixer container not found.");
         }
 
-        for (let i = 0; i < inputCount; i++)
+        for (let inputId = 0; inputId < inputCount; inputId++)
         {
             const mixerControl = new MixerControlElement(mixerContainer);
             mixerControls.push(mixerControl);
-            mixerControl.setButtonLabel(`I${i + 1}`);
+            mixerControl.buttonLabel = `I${inputId + 1}`;
         }
 
         return mixerControls;
-    }
-
-    private update<T> (outputId: number, array: T[], value: T, setter: (value: T) => void): void
-    {
-        array[outputId] = value;
-
-        if (outputId === this.activeOutputId)
-        {
-            setter(value);
-        }
     }
 
     /**
@@ -131,7 +190,7 @@ export class Gui
      */
     public setMute (value: boolean): void
     {
-        this.muteSetting.setButtonState(value);
+        this.muteSetting.buttonState = value;
     }
 
     /**
@@ -141,7 +200,12 @@ export class Gui
      */
     public setOutputVolume (outputId: number, value: number): void
     {
-        this.update(outputId, this.outputVolumes, value, this.muteSetting.setSliderValue.bind(this.muteSetting));
+        this.outputVolumes[outputId] = value;
+
+        if (outputId === this.activeOutputId)
+        {
+            this.muteSetting.sliderValue = value;
+        }
     }
 
     /**
@@ -150,7 +214,7 @@ export class Gui
      */
     public setMicrophone (value: boolean): void
     {
-        this.microphoneSetting.setButtonState(value);
+        this.microphoneSetting.buttonState = value;
     }
 
     /**
@@ -160,7 +224,12 @@ export class Gui
      */
     public setMicrophoneVolume (outputId: number, value: number): void
     {
-        this.update(outputId, this.microphoneVolumes, value, this.microphoneSetting.setSliderValue.bind(this.microphoneSetting));
+        this.microphoneVolumes[outputId] = value;
+
+        if (outputId === this.activeOutputId)
+        {
+            this.microphoneSetting.sliderValue = value;
+        }
     }
 
     /** Enable or disable the connection to a specific output.
@@ -169,7 +238,7 @@ export class Gui
      */
     public setOutputConnection (outputId: number, value: boolean): void
     {
-        this.outputButtons[outputId].setButtonEnabled(value);
+        this.outputButtons[outputId].buttonEnabled = value;
 
         // TODO: Should we switch automatically to the next available output or disable all elements?
     }
@@ -181,7 +250,7 @@ export class Gui
      */
     public setInputConnection (inputId: number, value: boolean): void
     {
-        this.inputControls[inputId].setEnabled(value);
+        this.inputControls[inputId].enabled = value;
     }
 
     /**
@@ -196,7 +265,7 @@ export class Gui
 
         if (outputId === this.activeOutputId)
         {
-            this.inputControls[inputId].setSliderValue(value);
+            this.inputControls[inputId].sliderValue = value;
         }
     }
 
@@ -206,7 +275,12 @@ export class Gui
      */
     public setCompressorState (outputId: number, value: boolean): void
     {
-        this.update(outputId, this.compressorStates, value, this.compressorSetting.setButtonState.bind(this.compressorSetting));
+        this.compressorStates[outputId] = value;
+
+        if (outputId === this.activeOutputId)
+        {
+            this.compressorSetting.buttonState = value;
+        }
     }
 
     /**
@@ -216,6 +290,32 @@ export class Gui
      */
     public setCompressorValue (outputId: number, value: number): void
     {
-        this.update(outputId, this.compressorValues, value, this.compressorSetting.setSliderValue.bind(this.compressorSetting));
+        this.compressorValues[outputId] = value;
+
+        if (outputId === this.activeOutputId)
+        {
+            this.compressorSetting.sliderValue = value;
+        }
+    }
+
+    private changeActiveOutput (newOutputId: number): void
+    {
+        if (newOutputId === this.activeOutputId)
+        {
+            return;
+        }
+
+        this.outputButtons[this.activeOutputId].buttonState = false;
+        this.activeOutputId = newOutputId;
+        this.outputButtons[this.activeOutputId].buttonState = true;
+
+        this.muteSetting.sliderValue = this.outputVolumes[this.activeOutputId];
+        this.microphoneSetting.sliderValue = this.microphoneVolumes[this.activeOutputId];
+        for (let inputId = 0; inputId < this.inputControls.length; inputId++)
+        {
+            this.inputControls[inputId].sliderValue = this.inputVolumes[this.activeOutputId][inputId];
+        }
+        this.compressorSetting.buttonState = this.compressorStates[this.activeOutputId];
+        this.compressorSetting.sliderValue = this.compressorValues[this.activeOutputId];
     }
 }

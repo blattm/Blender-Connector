@@ -1,8 +1,8 @@
 import { BaseElement } from './baseElement';
-import { buttonMixing } from './components/buttonComponent';
-import { sliderMixing } from './components/sliderComponent';
+import { buttonMixin } from './mixins/buttonMixin';
+import { sliderMixin } from './mixins/sliderMixin';
 
-export class MixerControlElement extends sliderMixing(buttonMixing(BaseElement))
+export class MixerControlElement extends sliderMixin(buttonMixin(BaseElement))
 {
     private static readonly template = document.getElementById("mixer-control-template") as HTMLTemplateElement|null;
 
@@ -16,9 +16,9 @@ export class MixerControlElement extends sliderMixing(buttonMixing(BaseElement))
         this.initialiseButton(rootElement);
     }
 
-    public setEnabled (enabled: boolean): void
+    public set enabled (enabled: boolean)
     {
-        this.setSliderEnabled(enabled);
-        this.setButtonEnabled(enabled);
+        this.sliderEnabled = enabled;
+        this.buttonEnabled = enabled;
     }
 }
