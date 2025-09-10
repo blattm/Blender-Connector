@@ -1,24 +1,20 @@
-import * as ApiEvents from './apiEvent';
 import * as ApiTyping from './apiTyping';
-import * as MessageParser from './messageParser';
-import { MessageType } from './messageType';
 import type { WebSocketClient } from './websocketClient';
 
 export class ApiHandler
 {
     private readonly client: WebSocketClient;
 
-    public onNotifyGlobalMicrophone: ((message: ApiEvents.GlobalMicrophone) => void)|null;
-    public onNotifyGlobalMuted: ((message: ApiEvents.GlobalMuted) => void)|null;
-    public onNotifyOutputCompressorState: ((message: ApiEvents.OutputCompressorState) => void)|null;
-    public onNotifyOutputCompressorValue: ((message: ApiEvents.OutputCompressorValue) => void)|null;
-    public onNotifyOutputInputVolume: ((message: ApiEvents.OutputInputVolume) => void)|null;
-    public onNotifyOutputMicrophoneVolume: ((message: ApiEvents.OutputMicrophoneVolume) => void)|null;
-    public onNotifyOutputSoundVolume: ((message: ApiEvents.OutputSoundVolume) => void)|null;
-    public onNotifyConnectionBlender: ((message: ApiEvents.ConnectionBlender) => void)|null;
-    public onNotifyConnectionInput: ((message: ApiEvents.ConnectionInput) => void)|null;
-    public onNotifyConnectionOutput: ((message: ApiEvents.ConnectionOutput) => void)|null;
-    public onState: ((message: ApiEvents.State) => void)|null;
+    public onNotifyGlobalMicrophone: ((message: ApiTyping.NotifyGlobalMicrophone) => void)|null;
+    public onNotifyGlobalMuted: ((message: ApiTyping.NotifyGlobalMuted) => void)|null;
+    public onNotifyOutputCompressorState: ((message: ApiTyping.NotifyOutputCompressorState) => void)|null;
+    public onNotifyOutputCompressorValue: ((message: ApiTyping.NotifyOutputCompressorValue) => void)|null;
+    public onNotifyOutputInputVolume: ((message: ApiTyping.NotifyOutputInputVolume) => void)|null;
+    public onNotifyOutputMicrophoneVolume: ((message: ApiTyping.NotifyOutputMicrophoneVolume) => void)|null;
+    public onNotifyOutputSoundVolume: ((message: ApiTyping.NotifyOutputSoundVolume) => void)|null;
+    public onNotifyConnectionBlender: ((message: ApiTyping.NotifyConnectionBlender) => void)|null;
+    public onNotifyConnectionInput: ((message: ApiTyping.NotifyConnectionInput) => void)|null;
+    public onNotifyConnectionOutput: ((message: ApiTyping.NotifyConnectionOutput) => void)|null;
 
     constructor (webSocketClient: WebSocketClient)
     {
@@ -32,7 +28,6 @@ export class ApiHandler
         this.onNotifyConnectionBlender = null;
         this.onNotifyConnectionInput = null;
         this.onNotifyConnectionOutput = null;
-        this.onState = null;
 
         this.client = webSocketClient;
 
@@ -47,53 +42,119 @@ export class ApiHandler
 
     private onMessage (data: string): void
     {
-        const message = MessageParser.parse(data);
-
-        if (message === null)
+        if (!this.tryDispatchMessage(data))
         {
-            console.error('ApiHandler: Unable to parse message: ', data);
-            return;
-        }
-
-        switch (message.type)
-        {
-            case MessageType.GlobalMicrophone:
-                this.onNotifyGlobalMicrophone?.(message);
-                break;
-            case MessageType.GlobalMuted:
-                this.onNotifyGlobalMuted?.(message);
-                break;
-            case MessageType.OutputCompressorState:
-                this.onNotifyOutputCompressorState?.(message);
-                break;
-            case MessageType.OutputCompressorValue:
-                this.onNotifyOutputCompressorValue?.(message);
-                break;
-            case MessageType.OutputInputVolume:
-                this.onNotifyOutputInputVolume?.(message);
-                break;
-            case MessageType.OutputMicrophoneVolume:
-                this.onNotifyOutputMicrophoneVolume?.(message);
-                break;
-            case MessageType.OutputSoundVolume:
-                this.onNotifyOutputSoundVolume?.(message);
-                break;
-            case MessageType.ConnectionBlender:
-                this.onNotifyConnectionBlender?.(message);
-                break;
-            case MessageType.ConnectionInput:
-                this.onNotifyConnectionInput?.(message);
-                break;
-            case MessageType.ConnectionOutput:
-                this.onNotifyConnectionOutput?.(message);
-                break;
-            case MessageType.State:
-                this.onState?.(message);
-                break;
+            console.error('ApiHandler: Unable to parse incoming message: ', data);
         }
     }
 
-    private sendMessage (messageObject: ApiTyping.ApiSetObject): void
+    private tryDispatchMessage (data: string): boolean
+    {
+        try
+        {
+            const messageObject = JSON.parse(data) as ApiTyping.Message|null;
+
+            if (messageObject === null)
+            {
+                return false;
+            }
+
+            switch (messageObject.method)
+            {
+                case ApiTyping.Method.Set:
+                    return false;
+                case ApiTyping.Method.Notify:
+                    this.dispatchNotifyMessage(messageObject);
+                    return true;
+                case ApiTyping.Method.State:
+                    for (const bundle of messageObject.bundles)
+                    {
+                        for (const data of bundle.data)
+                        {
+                            const unbundledMessageObject =
+                            {
+                                method: ApiTyping.Method.Notify,
+                                scope: bundle.scope,
+                                key: data.key,
+                                value: data.value,
+                            } as ApiTyping.Notify; // TODO: How could this assertion be avoided?
+
+                            this.dispatchNotifyMessage(unbundledMessageObject);
+                        }
+                    }
+                    return true;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private dispatchNotifyMessage (messageObject: ApiTyping.Notify): void
+    {
+        switch (messageObject.scope)
+        {
+            case ApiTyping.Scope.Global:
+                switch (messageObject.key)
+                {
+                    case ApiTyping.Key.Microphone:
+                        this.onNotifyGlobalMicrophone?.(messageObject);
+                        return;
+                    case ApiTyping.Key.Muted:
+                        this.onNotifyGlobalMuted?.(messageObject);
+                        return;
+                }
+            case ApiTyping.Scope.Connection:
+                switch (messageObject.key)
+                {
+                    case ApiTyping.Key.Blender:
+                        this.onNotifyConnectionBlender?.(messageObject);
+                        return;
+                    default:
+                        switch (messageObject.key.type)
+                        {
+                            case ApiTyping.ChannelType.Input:
+                            {
+                                const inputMessage = {
+                                    ...messageObject,
+                                    key: messageObject.key,
+                                };
+                                this.onNotifyConnectionInput?.(inputMessage);
+                                return;
+                            }
+                            case ApiTyping.ChannelType.Output:
+                                const outputMessage = {
+                                    ...messageObject,
+                                    key: messageObject.key,
+                                };
+                                this.onNotifyConnectionOutput?.(outputMessage);
+                                return;
+                        }
+                }
+            default:
+                switch (messageObject.key)
+                {
+                    case ApiTyping.Key.CompressorState:
+                        this.onNotifyOutputCompressorState?.(messageObject);
+                        return;
+                    case ApiTyping.Key.CompressorValue:
+                        this.onNotifyOutputCompressorValue?.(messageObject);
+                        return;
+                    case ApiTyping.Key.MicrophoneVolume:
+                        this.onNotifyOutputMicrophoneVolume?.(messageObject);
+                        return;
+                    case ApiTyping.Key.SoundVolume:
+                        this.onNotifyOutputSoundVolume?.(messageObject);
+                        return;
+                    default:
+                        this.onNotifyOutputInputVolume?.(messageObject);
+                        return;
+                }
+        }
+    }
+
+    private sendMessage (messageObject: ApiTyping.Set): void
     {
         const messageString = JSON.stringify(messageObject);
         this.client.send(messageString);
@@ -101,7 +162,7 @@ export class ApiHandler
 
     public setMuted (value: boolean): void
     {
-        const messageObject: ApiTyping.ApiSetObject =
+        const messageObject: ApiTyping.SetGlobalMuted =
         {
             method: ApiTyping.Method.Set,
             scope: ApiTyping.Scope.Global,
@@ -114,7 +175,7 @@ export class ApiHandler
 
     public setMicrophone (enabled: boolean): void
     {
-        const messageObject: ApiTyping.ApiSetObject =
+        const messageObject: ApiTyping.SetGlobalMicrophone =
         {
             method: ApiTyping.Method.Set,
             scope: ApiTyping.Scope.Global,
@@ -127,7 +188,7 @@ export class ApiHandler
 
     public setSoundVolume (outputId: number, volume: number): void
     {
-        const messageObject: ApiTyping.ApiSetObject =
+        const messageObject: ApiTyping.SetOutputSoundVolume =
         {
             method: ApiTyping.Method.Set,
             scope: {
@@ -143,7 +204,7 @@ export class ApiHandler
 
     public setMicrophoneVolume (outputId: number, volume: number): void
     {
-        const messageObject: ApiTyping.ApiSetObject =
+        const messageObject: ApiTyping.SetOutputMicrophoneVolume =
         {
             method: ApiTyping.Method.Set,
             scope: {
@@ -159,7 +220,7 @@ export class ApiHandler
 
     public setCompressorState (outputId: number, enabled: boolean): void
     {
-        const messageObject: ApiTyping.ApiSetObject =
+        const messageObject: ApiTyping.SetOutputCompressorState =
         {
             method: ApiTyping.Method.Set,
             scope: {
@@ -175,7 +236,7 @@ export class ApiHandler
 
     public setCompressorValue (outputId: number, value: number): void
     {
-        const messageObject: ApiTyping.ApiSetObject =
+        const messageObject: ApiTyping.SetOutputCompressorValue =
         {
             method: ApiTyping.Method.Set,
             scope: {
@@ -191,7 +252,7 @@ export class ApiHandler
 
     public setInput (outputId: number, inputId: number, value: number): void
     {
-        const messageObject: ApiTyping.ApiSetObject =
+        const messageObject: ApiTyping.SetOutputInputVolume =
         {
             method: ApiTyping.Method.Set,
             scope: {

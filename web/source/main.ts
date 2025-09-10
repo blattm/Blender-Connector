@@ -1,4 +1,4 @@
-import * as ApiEvents from './api/apiEvent';
+import * as ApiTyping from './api/apiTyping';
 import { ApiHandler } from './api/apiHandler';
 import { Gui } from './gui';
 import { WebSocketClient } from './api/websocketClient';
@@ -30,7 +30,6 @@ class Main
         this.apiHandler.onNotifyConnectionBlender = this.onNotifyConnectionBlender.bind(this);
         this.apiHandler.onNotifyConnectionInput = this.onNotifyConnectionInput.bind(this);
         this.apiHandler.onNotifyConnectionOutput = this.onNotifyConnectionOutput.bind(this);
-        this.apiHandler.onState = this.onState.bind(this);
 
         this.gui.onMicrophoneChanged = this.apiHandler.setMicrophone.bind(this.apiHandler);
         this.gui.onMuteChanged = this.apiHandler.setMuted.bind(this.apiHandler);
@@ -46,109 +45,63 @@ class Main
         this.webSocketClient.connect(Main.webSocketAddress);
     }
 
-    private onNotifyGlobalMicrophone (message: ApiEvents.GlobalMicrophone): void
+    private onNotifyGlobalMicrophone (message: ApiTyping.NotifyGlobalMicrophone): void
     {
         this.gui.setMicrophone(message.value);
     }
 
-    private onNotifyGlobalMuted (message: ApiEvents.GlobalMuted): void
+    private onNotifyGlobalMuted (message: ApiTyping.NotifyGlobalMuted): void
     {
         this.gui.setMute(message.value);
     }
 
-    private onNotifyOutputCompressorState (message: ApiEvents.OutputCompressorState): void
+    private onNotifyOutputCompressorState (message: ApiTyping.NotifyOutputCompressorState): void
     {
-        this.verifyOutputId(message.outputId);
-        this.gui.setCompressorState(message.outputId, message.value);
+        this.verifyOutputId(message.scope.id);
+        this.gui.setCompressorState(message.scope.id, message.value);
     }
 
-    private onNotifyOutputCompressorValue (message: ApiEvents.OutputCompressorValue): void
+    private onNotifyOutputCompressorValue (message: ApiTyping.NotifyOutputCompressorValue): void
     {
-        this.verifyOutputId(message.outputId);
-        this.gui.setCompressorValue(message.outputId, message.value);
+        this.verifyOutputId(message.scope.id);
+        this.gui.setCompressorValue(message.scope.id, message.value);
     }
 
-    private onNotifyOutputInputVolume (message: ApiEvents.OutputInputVolume): void
+    private onNotifyOutputInputVolume (message: ApiTyping.NotifyOutputInputVolume): void
     {
-        this.verifyOutputId(message.outputId);
-        this.verifyInputId(message.inputId);
+        this.verifyOutputId(message.scope.id);
+        this.verifyInputId(message.key.id);
 
-        this.gui.setInputVolume(message.outputId, message.inputId, message.value);
+        this.gui.setInputVolume(message.scope.id, message.key.id, message.value);
     }
 
-    private onNotifyOutputMicrophoneVolume (message: ApiEvents.OutputMicrophoneVolume): void
+    private onNotifyOutputMicrophoneVolume (message: ApiTyping.NotifyOutputMicrophoneVolume): void
     {
-        this.verifyOutputId(message.outputId);
-        this.gui.setMicrophoneVolume(message.outputId, message.value);
+        this.verifyOutputId(message.scope.id);
+        this.gui.setMicrophoneVolume(message.scope.id, message.value);
     }
 
-    private onNotifyOutputSoundVolume (message: ApiEvents.OutputSoundVolume): void
+    private onNotifyOutputSoundVolume (message: ApiTyping.NotifyOutputSoundVolume): void
     {
-        this.verifyOutputId(message.outputId);
-        this.gui.setOutputVolume(message.outputId, message.value);
+        this.verifyOutputId(message.scope.id);
+        this.gui.setOutputVolume(message.scope.id, message.value);
     }
 
-    private onNotifyConnectionBlender (message: ApiEvents.ConnectionBlender): void
+    private onNotifyConnectionBlender (message: ApiTyping.NotifyConnectionBlender): void
     {
         console.warn("Blender connection event received, but not handled: ", message); // TODO: Implement.
     }
 
-    private onNotifyConnectionInput (message: ApiEvents.ConnectionInput): void
+    private onNotifyConnectionInput (message: ApiTyping.NotifyConnectionInput): void
     {
-        this.verifyInputId(message.inputId);
-        this.gui.setInputConnection(message.inputId, message.value);
+        this.verifyInputId(message.key.id);
+        this.gui.setInputConnection(message.key.id, message.value);
     }
 
-    private onNotifyConnectionOutput (message: ApiEvents.ConnectionOutput): void
+    private onNotifyConnectionOutput (message: ApiTyping.NotifyConnectionOutput): void
     {
-        this.verifyOutputId(message.outputId);
-        this.gui.setOutputConnection(message.outputId, message.value);
-    }
-
-    private onState (message: ApiEvents.State): void
-    {
-        this.onNotifyGlobalMicrophone(message.globalMicrophone);
-        this.onNotifyGlobalMuted(message.globalMuted);
-
-        for (const outputCompressorState of message.outputCompressorStates)
-        {
-            this.onNotifyOutputCompressorState(outputCompressorState);
-        }
-
-        for (const outputCompressorValue of message.outputCompressorValues)
-        {
-            this.onNotifyOutputCompressorValue(outputCompressorValue);
-        }
-
-        for (const outputInputVolumes of message.outputInputVolumes)
-        {
-            for (const outputInputVolume of outputInputVolumes)
-            {
-                this.onNotifyOutputInputVolume(outputInputVolume);
-            }
-        }
-
-        for (const outputMicrophoneVolume of message.outputMicrophoneVolumes)
-        {
-            this.onNotifyOutputMicrophoneVolume(outputMicrophoneVolume);
-        }
-
-        for (const outputSoundVolume of message.outputSoundVolumes)
-        {
-            this.onNotifyOutputSoundVolume(outputSoundVolume);
-        }
-
-        this.onNotifyConnectionBlender(message.connectionBlender);
-
-        for (const connectionInput of message.connectionInputs)
-        {
-            this.onNotifyConnectionInput(connectionInput);
-        }
-
-        for (const connectionOutput of message.connectionOutputs)
-        {
-            this.onNotifyConnectionOutput(connectionOutput);
-        }
+        this.verifyOutputId(message.key.id);
+        this.gui.setOutputConnection(message.key.id, message.value);
     }
 
     private verifyInputId (inputId: number): void

@@ -55,50 +55,76 @@ type BaseObject<
 } &
     KeyValuePair<TKey, TValue>;
 
-// Set Objects
+// Set
 
-type SetGlobalObject = BaseObject<Method.Set, Scope.Global, Key.Microphone|Key.Muted, boolean>;
+export type SetGlobalMicrophone = BaseObject<Method.Set, Scope.Global, Key.Microphone, boolean>;
+export type SetGlobalMuted = BaseObject<Method.Set, Scope.Global, Key.Muted, boolean>;
+type SetGlobal = SetGlobalMicrophone | SetGlobalMuted;
 
-type SetOutputNumberObject = BaseObject<
+type SetOutputNumber<TKey extends Channel<ChannelType>|Key> = BaseObject<
     Method.Set,
     Channel<ChannelType.Output>,
-    Key.SoundVolume | Key.MicrophoneVolume | Key.CompressorValue,
+    TKey,
     number
 >;
 
-type SetOutputBooleanObject = BaseObject<Method.Set, Channel<ChannelType.Output>, Key.CompressorState, boolean>;
+export type SetOutputSoundVolume = SetOutputNumber<Key.SoundVolume>;
+export type SetOutputMicrophoneVolume = SetOutputNumber<Key.MicrophoneVolume>;
+export type SetOutputCompressorValue = SetOutputNumber<Key.CompressorValue>;
+export type SetOutputInputVolume = SetOutputNumber<Channel<ChannelType.Input>>;
+export type SetOutputCompressorState = BaseObject<Method.Set, Channel<ChannelType.Output>, Key.CompressorState, boolean>;
+type SetOutput = SetOutputSoundVolume
+    | SetOutputMicrophoneVolume
+    | SetOutputCompressorValue
+    | SetOutputInputVolume
+    | SetOutputCompressorState;
 
-type SetOutputInputVolumeObject = BaseObject<Method.Set, Channel<ChannelType.Output>, Channel<ChannelType.Input>, number>;
+export type Set = SetGlobal | SetOutput;
 
-export type ApiSetObject = SetGlobalObject | SetOutputNumberObject | SetOutputBooleanObject | SetOutputInputVolumeObject;
+// Notify
 
-// Notify Objects
+type MakeNotify<T> = Omit<T, 'method'> & { method: Method.Notify; };
 
-type MakeNotifyObject<T> = Omit<T, 'method'> & { method: Method.Notify; };
+export type NotifyGlobalMicrophone = MakeNotify<SetGlobalMicrophone>;
+export type NotifyGlobalMuted = MakeNotify<SetGlobalMuted>;
+type NotifyGlobal = NotifyGlobalMicrophone | NotifyGlobalMuted;
 
-type NotifyConnectionBlenderObject = BaseObject<Method.Notify, Scope.Connection, Key.Blender, boolean>;
+export type NotifyOutputSoundVolume = MakeNotify<SetOutputSoundVolume>;
+export type NotifyOutputMicrophoneVolume = MakeNotify<SetOutputMicrophoneVolume>;
+export type NotifyOutputCompressorValue = MakeNotify<SetOutputCompressorValue>;
+export type NotifyOutputInputVolume = MakeNotify<SetOutputInputVolume>;
+export type NotifyOutputCompressorState = MakeNotify<SetOutputCompressorState>;
+type NotifyOutput = NotifyOutputSoundVolume
+    | NotifyOutputMicrophoneVolume
+    | NotifyOutputCompressorValue
+    | NotifyOutputInputVolume
+    | NotifyOutputCompressorState;
 
-type NotifyConnectionOutputObject = BaseObject<Method.Notify, Scope.Connection, Channel<ChannelType.Output>, boolean>;
+export type NotifyConnectionBlender = BaseObject<Method.Notify, Scope.Connection, Key.Blender, boolean>;
+export type NotifyConnectionOutput = BaseObject<Method.Notify, Scope.Connection, Channel<ChannelType.Output>, boolean>;
+export type NotifyConnectionInput = BaseObject<Method.Notify, Scope.Connection, Channel<ChannelType.Input>, boolean>;
+type NotifyConnection = NotifyConnectionBlender | NotifyConnectionOutput | NotifyConnectionInput;
 
-type NotifyConnectionInputObject = BaseObject<Method.Notify, Scope.Connection, Channel<ChannelType.Input>, number>;
+export type Notify = NotifyGlobal | NotifyOutput | NotifyConnection;
 
-type NotifyConnectionObject = NotifyConnectionBlenderObject | NotifyConnectionOutputObject | NotifyConnectionInputObject;
-
-export type NotifyObject = MakeNotifyObject<ApiSetObject> | NotifyConnectionObject;
-
-// State Object
+// State
 
 type GlobalBundle =
 {
     scope: Scope.Global;
-    data: KeyValuePair<Key.Microphone|Key.Muted, boolean>[];
+    data: Array<
+        KeyValuePair<Key.Microphone, boolean>
+        | KeyValuePair<Key.Muted, boolean>
+    >;
 };
 
 type OutputBundle =
 {
     scope: Channel<ChannelType.Output>;
     data: Array<
-        KeyValuePair<Key.SoundVolume|Key.MicrophoneVolume|Key.CompressorValue, number>
+        KeyValuePair<Key.SoundVolume, number>
+        | KeyValuePair<Key.MicrophoneVolume, number>
+        | KeyValuePair<Key.CompressorValue, number>
         | KeyValuePair<Key.CompressorState, boolean>
         | KeyValuePair<Channel<ChannelType.Input>, number>
     >;
@@ -114,12 +140,12 @@ type ConnectionBundle =
     >;
 };
 
-export type StateObject =
+export type State =
 {
     method: Method.State;
     bundles: Array<GlobalBundle | ConnectionBundle | OutputBundle>
 };
 
-// Api Message Object
+// Api Message
 
-export type ApiMessageObject = ApiSetObject | NotifyObject | StateObject;
+export type Message = Set | Notify | State;
