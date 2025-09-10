@@ -1,4 +1,4 @@
-import * as ApiTyping from './api/apiTyping';
+import * as ApiMessages from './api/apiMessage';
 import { ApiHandler } from './api/apiHandler';
 import { Gui } from './gui';
 import { WebSocketClient } from './api/websocketClient';
@@ -45,29 +45,29 @@ class Main
         this.webSocketClient.connect(Main.webSocketAddress);
     }
 
-    private onNotifyGlobalMicrophone (message: ApiTyping.NotifyGlobalMicrophone): void
+    private onNotifyGlobalMicrophone (message: ApiMessages.NotifyGlobalMicrophone): void
     {
         this.gui.setMicrophone(message.value);
     }
 
-    private onNotifyGlobalMuted (message: ApiTyping.NotifyGlobalMuted): void
+    private onNotifyGlobalMuted (message: ApiMessages.NotifyGlobalMuted): void
     {
         this.gui.setMute(message.value);
     }
 
-    private onNotifyOutputCompressorState (message: ApiTyping.NotifyOutputCompressorState): void
+    private onNotifyOutputCompressorState (message: ApiMessages.NotifyOutputCompressorState): void
     {
         this.verifyOutputId(message.scope.id);
         this.gui.setCompressorState(message.scope.id, message.value);
     }
 
-    private onNotifyOutputCompressorValue (message: ApiTyping.NotifyOutputCompressorValue): void
+    private onNotifyOutputCompressorValue (message: ApiMessages.NotifyOutputCompressorValue): void
     {
         this.verifyOutputId(message.scope.id);
         this.gui.setCompressorValue(message.scope.id, message.value);
     }
 
-    private onNotifyOutputInputVolume (message: ApiTyping.NotifyOutputInputVolume): void
+    private onNotifyOutputInputVolume (message: ApiMessages.NotifyOutputInputVolume): void
     {
         this.verifyOutputId(message.scope.id);
         this.verifyInputId(message.key.id);
@@ -75,30 +75,30 @@ class Main
         this.gui.setInputVolume(message.scope.id, message.key.id, message.value);
     }
 
-    private onNotifyOutputMicrophoneVolume (message: ApiTyping.NotifyOutputMicrophoneVolume): void
+    private onNotifyOutputMicrophoneVolume (message: ApiMessages.NotifyOutputMicrophoneVolume): void
     {
         this.verifyOutputId(message.scope.id);
         this.gui.setMicrophoneVolume(message.scope.id, message.value);
     }
 
-    private onNotifyOutputSoundVolume (message: ApiTyping.NotifyOutputSoundVolume): void
+    private onNotifyOutputSoundVolume (message: ApiMessages.NotifyOutputSoundVolume): void
     {
         this.verifyOutputId(message.scope.id);
         this.gui.setOutputVolume(message.scope.id, message.value);
     }
 
-    private onNotifyConnectionBlender (message: ApiTyping.NotifyConnectionBlender): void
+    private onNotifyConnectionBlender (message: ApiMessages.NotifyConnectionBlender): void
     {
         console.warn("Blender connection event received, but not handled: ", message); // TODO: Implement.
     }
 
-    private onNotifyConnectionInput (message: ApiTyping.NotifyConnectionInput): void
+    private onNotifyConnectionInput (message: ApiMessages.NotifyConnectionInput): void
     {
         this.verifyInputId(message.key.id);
         this.gui.setInputConnection(message.key.id, message.value);
     }
 
-    private onNotifyConnectionOutput (message: ApiTyping.NotifyConnectionOutput): void
+    private onNotifyConnectionOutput (message: ApiMessages.NotifyConnectionOutput): void
     {
         this.verifyOutputId(message.key.id);
         this.gui.setOutputConnection(message.key.id, message.value);
