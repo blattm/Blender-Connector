@@ -12,17 +12,81 @@ A WIP reverse-engineered Linux interface for the TC Helicon Blender mixer, enabl
 
 The BLE protocol is described in [documentation/blender_protocol.md](documentation/blender_protocol.md).
 
+The web protocol is described in [documentation/web_protocol.md](documentation/web_protocol.md).
+
+## Middleware
+
+A complete middleware implementation is available in the `src/` directory that bridges the Blender BLE protocol and provides APIs for multiple client types.
+
+### Features
+
+- **WebSocket API**: JSON-based web protocol for browser/web applications
+- **OSC API**: Open Sound Control protocol for music software integration  
+- **High-level API**: Simplified Python API for direct integration
+- **Multi-client support**: Multiple clients can connect simultaneously
+- **Real-time synchronization**: All clients see consistent state
+- **Automatic reconnection**: Handles device disconnection gracefully
+
+### Quick Start
+
+```bash
+# Install dependencies
+cd src/
+pip install -r requirements.txt
+
+# Run the middleware server
+python3 blender_middleware.py
+```
+
+This starts:
+- WebSocket server on `ws://localhost:8081`
+- OSC server on `127.0.0.1:8765`
+- Automatic connection to Blender device
+
+### API Examples
+
+**WebSocket (JSON):**
+```json
+{
+    "method": "set",
+    "scope": {"type": "output", "id": 0},
+    "key": "sound_volume",
+    "value": 0.7
+}
+```
+
+**OSC:**
+```
+/blender/output/0/volume 0.7
+/blender/global/mute
+```
+
+**Python API:**
+```python
+from blender_api import BlenderAPI
+
+api = BlenderAPI()
+await api.connect()
+await api.set_total_volume(0, 0.8)
+```
+
+See [src/README.md](src/README.md) for complete documentation.
+
 ## Todos
 - [x] Understand and document protocol
 - [x] Describe BLE connection details
-- [ ] Describe bidirectional/unidirectional protocol elements
+- [x] Describe bidirectional/unidirectional protocol elements
 - [x] BLE connection code
-- [ ] Provide a high-level wrapper around the protocol messages
-- [ ] Fully functioning Blender API
-- [ ] Representation of Blender state via object
-- [ ] BLE Blender Server
-- [ ] Define an API to connect with (web) clients
-- [ ] Write web client + server
+- [x] Provide a high-level wrapper around the protocol messages
+- [x] Fully functioning Blender API
+- [x] Representation of Blender state via object
+- [x] BLE Blender Server
+- [x] Define an API to connect with (web) clients
+- [x] Write web server
+- [x] Implement OSC support
+- [ ] Implement MIDI support
+- [ ] Write web client
+- [ ] Customizable channel names
 
 ## Legal / Disclaimer
 
