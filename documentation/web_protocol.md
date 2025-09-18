@@ -1,52 +1,102 @@
 # Web Protocol
 
-## Draft
+This is a draft.
 
-"type": "set" means client -> server communication of a change made by this client
+## Client to Server Messages
 
-{"type": "set", "scope": "out1", "target": "in1", "value": 0.532} // similar for out2, out3, out4; in2, ..., in6
-{"type": "set", "scope": "out1", "target": "level", "value": 0.532}
-{"type": "set", "scope": "out1", "target": "room", "value": 0.532}
-{"type": "set", "scope": "out1", "target": "comp_val", "value": 0.3}
-{"type": "set", "scope": "out1", "target": "comp_on", "value": true}
+Available methods: `set`
+Available scopes: `global`, `output` (with id 0-3)
+Available keys:
+  - For `global` scope: `muted`, `microphone`
+  - For `output` scope: `sound_volume`, `microphone_volume`, `compressor_state`, `compressor_value`, `input` (with id 0-5)
 
-{"type": "set", "scope": "global", "target": "mute", "value": true}
-{"type": "set", "scope": "global", "target": "talk", "value": true}
+Global settings:
+```json
+{"method": "set", "scope": "global", "key": "muted", "value": true}
+{"method": "set", "scope": "global", "key": "microphone", "value": true}
+```
 
-for server -> client communication, when a value was changed on server:
-same as above, but "type": "notify"
+Local (output-bound) setting:
+```json
+{
+    "method": "set",
+    "scope": {
+        "type": "output",
+        "id": 0
+    },
+    "key": "compressor_state",
+    "value": true
+}
+```
 
-server -> client connection status:
-{"type": "connections", "blender":true, "ports":{"in1":false, ..., "out4": true}} // does not need to be complete, can send changed subsets only
+Local (output-bound) and input-targeting setting:
+```json
+{
+    "method": "set",
+    "scope": {
+        "type": "output",
+        "id": 0
+    },
+    "key": {
+        "type": "input",
+        "id": 0
+    },
+    "value": 0.532
+}
+```
 
-client requests state from server:
-{"type": "request"} // request complete state from server
-{"type": "request", "scope": "out1"}   // request partial state from server
-{"type": "request", "scopes": ["out2", "global"]} // request partial state from server
+## Server to Client Messages
 
-server sends complete state to client: // there is a smarter way to do this, but maybe best for now
-{"type": "state", "data": [
-    //connection message + all required notify message
-]}
+Available methods: `notify`, `state`
+Available scopes: `global`, `output` (with id 0-3), `connection`
+Available keys:
+  - For `global` scope: `muted`, `microphone`
+  - For `output` scope: `sound_volume`, `microphone_volume`, `compressor_state`, `compressor_value`, `input` (with id 0-5)
+  - For `connection` scope: `output` (with id 0-3), `input` (with id 0-5), `blender`
 
-"compressed" representations which provide full context do not really save that much space:
-{"type": "state", "data": [
-    {"type": "connections", ...},
-    {"type": "notify", "data": [
-        {"scope": "out1", "data":[
-            {"target": "in1", "value": 0.5},
-            {"target": "in2", "value": 0.5},
-            ...
-        ]},
-        {"scope": "out2", "data":[
-            {"target": "in1", "value": 0.5},
-            {"target": "in2", "value": 0.5},
-            ...
-        ]},
+The same form as the client to server message, but with `"method": "notify"` instead of `"method": "set"`.
+Additionally the following message form is available:
+
+Complete state update:
+```json
+{
+    "method": "state",
+    "bundles": [
+        {
+            "scope": "global",
+            "data": [
+                {"key": "muted", "value": true},
+                {"key": "microphone", "value": true}
+            ]
+        },
+        {
+            "scope": {"type": "output", "id": 0},
+            "data": [
+                {"key": {"type": "input", "id": 0}, "value": 0.532},
+                {"key": {"type": "input", "id": 1}, "value": 0.532},
+                {"key": {"type": "input", "id": 2}, "value": 0.532},
+                {"key": {"type": "input", "id": 3}, "value": 0.532},
+                {"key": {"type": "input", "id": 4}, "value": 0.532},
+                {"key": {"type": "input", "id": 5}, "value": 0.532},
+                {"key": "microphone_volume", "value": 0.532},
+                {"key": "sound_volume", "value": 0.532},
+                {"key": "compressor_state", "value": true},
+                {"key": "compressor_value", "value": 0.532}
+            ]
+        },
         ...
-    ]}
-]}
-
-or we use some kind of table: (this comes with the advantage of being self-describing and compact. It also allows partial updates and complete updates)
-{"type": "state_table": "rows": ["in1", ..., "level"], "columns": ["out1", "out2"], "values":[0.5, 0.7, true, 0.8, ...]}
-... combined with two messages for the global flags and one for the connections. potentially all wrapped in a single "state" message's data part.
+        {
+            "scope": "connection",
+            "data": [
+                {"key": {"type": "output", "id": 0}, "value": true},
+                ...
+                {"key": {"type": "input", "id": 0}, "value": true},
+                ...
+                {"key": "blender", "value": true}
+            ]
+        }
+    ]
+}
+```
+The server must always send the complete state directly after a client connects and before any other messages are sent. This is the only time the state is sent.
+The state must contain all values and must not be partial.
