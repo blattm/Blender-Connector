@@ -19,13 +19,13 @@ Messages are always sent as 3-byte commands.
 
 ---
 
-### Handshake
+### Handshake (Client to Blender)
 
 Client Hello / Request current state: `0x13 0x00 0x00`
 
 Always send this to Blender first, or the connection will stay read-only.
 
-### Per-Output Properties (0x00–0x08)
+### Per-Output Properties (0x00–0x08) (Bidirectional)
 
 Format for all per-output properties:
 `<PropertyID> <OutputNumber> <Value>`
@@ -46,7 +46,7 @@ Format for all per-output properties:
 
 ### Global Properties
 
-#### Mute (0x14)
+#### Mute (0x14) (Bidirectional)
 
 Format: `0x14 0x00 <Value>`
 
@@ -57,7 +57,7 @@ Format: `0x14 0x00 <Value>`
 
 ---
 
-#### Compression Flags (0x15)
+#### Compression Flags (0x15) (Bidirectional)
 
 Format: `0x15 0x00 <Value>`
 
@@ -72,7 +72,7 @@ Format: `0x15 0x00 <Value>`
 
 ---
 
-#### Talkback (0x09)
+#### Talkback (0x09) (Bidirectional)
 
 Format: `0x09 0x00 <Value>`
 
@@ -83,7 +83,7 @@ Format: `0x09 0x00 <Value>`
 
 ---
 
-#### Connection Flags (0x0B)
+#### Connection Flags (0x0B) (Blender to Client)
 
 Format: `0x0B <InputFlags> <OutputFlags>`
 
@@ -98,7 +98,7 @@ Format: `0x0B <InputFlags> <OutputFlags>`
 
 ---
 
-#### Unknown Properties
+#### Unknown Properties (Bidirectional)
 
 - **0x0A**: only observed value `0x00 0x00`, purpose unknown
 - **0x11**: only observed value `0x00 0x00`, purpose unknown
