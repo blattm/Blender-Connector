@@ -15,14 +15,17 @@ The BLE protocol is described in [documentation/blender_protocol.md](documentati
 ## Todos
 - [x] Understand and document protocol
 - [x] Describe BLE connection details
-- [ ] Describe bidirectional/unidirectional protocol elements
+- [x] Describe bidirectional/unidirectional protocol elements
 - [x] BLE connection code
 - [ ] Provide a high-level wrapper around the protocol messages
 - [ ] Fully functioning Blender API
 - [ ] Representation of Blender state via object
 - [ ] BLE Blender Server
-- [ ] Define an API to connect with (web) clients
-- [ ] Write web client + server
+- [x] Define an API to connect with (web) clients
+- [ ] Write web client
+- [ ] Write web server
+- [ ] Implement OSC support
+- [ ] Implement MIDI support
 - [ ] Customizable channel names 
 
 ## Legal / Disclaimer
