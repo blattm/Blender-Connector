@@ -22,7 +22,7 @@ The BLE protocol is described in [documentation/blender_protocol.md](documentati
 - [ ] Representation of Blender state via object
 - [ ] BLE Blender Server
 - [x] Define an API to connect with (web) clients
-- [ ] Write web client
+- [x] Write web client
 - [ ] Write web server
 - [ ] Implement OSC support
 - [ ] Implement MIDI support
