@@ -1,0 +1,40 @@
+{
+    "name": "blender-connector-web-frontend",
+    "version": "0.1.0-dev",
+    "description": "The web frontend for the Blender Connector",
+    "type": "module",
+    "author": "Benedikt Magnus",
+    "contributors": [
+        "Benedikt Magnus",
+        "Manuel Blatt"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/blattm/Blender-Connector.git"
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+        "@eslint/js": "9.34.0",
+        "esbuild": "0.25.9",
+        "eslint": "9.34.0",
+        "eslint-config-phosphor": "1.5.0",
+        "typescript": "5.9.2",
+        "typescript-eslint": "8.41.0"
+    },
+    "scripts": {
+        "build": "npm run build:debug",
+        "build:debug": "tsc --build tsconfig.json && node esbuild.js",
+        "build:release": "tsc -p tsconfig.release.json && node esbuild.release.js",
+        "clean": "rm -r build",
+        "prepack": "npm run build && cp ../LICENSE LICENSE",
+        "postpack": "rm LICENSE &&"
+    },
+    "files": [
+        "build",
+        "LICENSE",
+        "README.md"
+    ],
+    "private": true
+}

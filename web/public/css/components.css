@@ -1,0 +1,120 @@
+/* #### Common #### */
+
+button:disabled,
+input[type="range"]:disabled
+{
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+/* #### Sliders #### */
+
+@property --translucency
+{
+    syntax: '<percentage>';
+    initial-value: 0%;
+    inherits: false;
+}
+
+input[type="range"]
+{
+    --selected-range-colour: #3780D6;
+    --unselected-range-colour: #1C1B1D;
+    --line-thickness: 0.5rem;
+    --thumb-size: 1.8rem;
+
+    --colour-gradient: color-mix(in srgb, var(--selected-range-colour), #000 var(--translucency, 0%));
+
+	flex-grow: 1;
+    min-width: var(--thumb-size);
+    min-height: var(--thumb-size);
+	display: block;
+
+    appearance: none;
+    background: none;
+    overflow: hidden;
+
+    cursor: grab;
+
+    transition: --translucency var(--common-transition-time) ease;
+}
+
+input[type="range"]:active
+{
+    cursor: grabbing;
+}
+
+input[type="range"][orient="horizontal"]
+{
+	height: 100%;
+}
+
+input[type="range"][orient="vertical"]
+{
+	width: 100%;
+    writing-mode: sideways-lr;
+}
+
+input[type="range"]:not(:disabled):hover {
+    --translucency: 25%;
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-thumb {
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    background: var(--colour-gradient);
+    border-image:
+        linear-gradient(90deg, var(--colour-gradient) 50%, var(--unselected-range-colour) 0)
+        0 1/calc(50% - var(--line-thickness)/2) 100vw/0 100vw;
+    appearance: none;
+
+    transition: background var(--common-transition-time) ease;
+}
+input[type="range"][orient="vertical"]::-moz-range-thumb {
+    rotate: 270deg;
+}
+
+/* Chromium */ /* HACK: It needs to be duplicated here because Chromium refuses to acknowledge it if concatenated with the Firefox rule. */
+input[type="range"]::-webkit-slider-thumb {
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    background: var(--colour-gradient);
+    border-image:
+        linear-gradient(90deg, var(--colour-gradient) 50%, var(--unselected-range-colour) 0)
+        0 1/calc(50% - var(--line-thickness)/2) 100vw/0 100vw;
+    -webkit-appearance: none;
+    appearance: none;
+
+    /* FIXME: In Chromium this seems to run in sequence (the thumb after the track) and not simultaneously like in Firefox: */
+    transition: background var(--common-transition-time) ease;
+}
+input[type="range"][orient="vertical"]::-webkit-slider-thumb {
+    rotate: 270deg;
+}
+
+/* #### Buttons #### */
+
+button
+{
+    min-width: 3rem;
+    min-height: 3rem;
+
+    background-color: var(--common-background-colour);
+    border-color: var(--common-border-colour);
+    color: var(--common-text-colour);
+
+    border-radius: 0.25rem;
+    border-style: solid;
+
+    font-weight: bold;
+}
+
+button:not(:disabled):hover
+{
+    background-color: rgb(from var(--common-background-colour) calc(r + 12) calc(g + 12) calc(b + 12));
+    border-color: rgb(from var(--common-border-colour) calc(r + 8) calc(g + 8) calc(b + 8));
+    color: rgb(from var(--common-text-colour) calc(r + 56) calc(g + 56) calc(b + 56));
+    transition: var(--common-transition-time);
+}

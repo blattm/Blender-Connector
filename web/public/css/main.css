@@ -1,0 +1,113 @@
+*
+{
+    overscroll-behavior: contain; /* Prevent scrolling the entire page when reaching the top or bottom of a scrollable element. */
+
+    --common-background-colour: #2E2F33;
+    --common-border-colour: #232326;
+    --common-text-colour: #C6C6C6;
+    --common-transition-time: 0.25s;
+}
+
+html, body
+{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: stretch;
+	padding: 0.5vh 2.5vw;
+    background-color: var(--common-background-colour);
+}
+
+section
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	box-sizing: border-box;
+	border-bottom: 3px solid var(--common-border-colour);
+	padding: 1vh 1vw;
+}
+
+section > div
+{
+	width: min(100%, 75vh);
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+
+	gap: 1vw;
+    padding: 0.5vh 0;
+}
+
+section:last-of-type
+{
+	border-bottom: none;
+}
+
+section.mixer-section
+{
+	flex: 1 1 auto;
+	min-height: 0;
+	height: 100%;
+	justify-content: stretch;
+}
+
+.mixer-section > div
+{
+	flex: 1 1 0;
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	height: 100%;
+	min-height: 0;
+}
+
+.mixer-section > div
+{
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	height: 100%;
+}
+
+section:not(.mixer-section)
+{
+	flex: 0 0 auto;
+}
+
+.mixer-control
+{
+	flex: 1 1 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: stretch;
+	height: 100%;
+	min-height: 0;
+}
+
+.mixer-control > div:first-child
+{
+	flex: 1 1 0;
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+}
+
+.mixer-control > *:first-child
+{
+	margin-bottom: 1vw;
+}

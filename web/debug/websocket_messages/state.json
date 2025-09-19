@@ -1,0 +1,88 @@
+{
+    "method": "state",
+    "bundles": [
+        {
+            "scope": "global",
+            "data": [
+                {"key": "muted", "value": true},
+                {"key": "microphone", "value": true}
+            ]
+        },
+        {
+            "scope": {"type": "output", "id": 0},
+            "data": [
+                {"key": {"type": "input", "id": 0}, "value": 0.75},
+                {"key": {"type": "input", "id": 1}, "value": 0.75},
+                {"key": {"type": "input", "id": 2}, "value": 0.75},
+                {"key": {"type": "input", "id": 3}, "value": 0.75},
+                {"key": {"type": "input", "id": 4}, "value": 0.75},
+                {"key": {"type": "input", "id": 5}, "value": 0.75},
+                {"key": "microphone_volume", "value": 0.75},
+                {"key": "sound_volume", "value": 0.75},
+                {"key": "compressor_state", "value": true},
+                {"key": "compressor_value", "value": 0.75}
+            ]
+        },
+        {
+            "scope": {"type": "output", "id": 1},
+            "data": [
+                {"key": {"type": "input", "id": 0}, "value": 0.75},
+                {"key": {"type": "input", "id": 1}, "value": 0.75},
+                {"key": {"type": "input", "id": 2}, "value": 0.75},
+                {"key": {"type": "input", "id": 3}, "value": 0.75},
+                {"key": {"type": "input", "id": 4}, "value": 0.75},
+                {"key": {"type": "input", "id": 5}, "value": 0.75},
+                {"key": "microphone_volume", "value": 0.75},
+                {"key": "sound_volume", "value": 0.75},
+                {"key": "compressor_state", "value": true},
+                {"key": "compressor_value", "value": 0.75}
+            ]
+        },
+        {
+            "scope": {"type": "output", "id": 2},
+            "data": [
+                {"key": {"type": "input", "id": 0}, "value": 0.75},
+                {"key": {"type": "input", "id": 1}, "value": 0.75},
+                {"key": {"type": "input", "id": 2}, "value": 0.75},
+                {"key": {"type": "input", "id": 3}, "value": 0.75},
+                {"key": {"type": "input", "id": 4}, "value": 0.75},
+                {"key": {"type": "input", "id": 5}, "value": 0.75},
+                {"key": "microphone_volume", "value": 0.75},
+                {"key": "sound_volume", "value": 0.75},
+                {"key": "compressor_state", "value": true},
+                {"key": "compressor_value", "value": 0.75}
+            ]
+        },
+        {
+            "scope": {"type": "output", "id": 3},
+            "data": [
+                {"key": {"type": "input", "id": 0}, "value": 0.75},
+                {"key": {"type": "input", "id": 1}, "value": 0.75},
+                {"key": {"type": "input", "id": 2}, "value": 0.75},
+                {"key": {"type": "input", "id": 3}, "value": 0.75},
+                {"key": {"type": "input", "id": 4}, "value": 0.75},
+                {"key": {"type": "input", "id": 5}, "value": 0.75},
+                {"key": "microphone_volume", "value": 0.75},
+                {"key": "sound_volume", "value": 0.75},
+                {"key": "compressor_state", "value": true},
+                {"key": "compressor_value", "value": 0.75}
+            ]
+        },
+        {
+            "scope": "connection",
+            "data": [
+                {"key": {"type": "output", "id": 0}, "value": true},
+                {"key": {"type": "output", "id": 1}, "value": true},
+                {"key": {"type": "output", "id": 2}, "value": true},
+                {"key": {"type": "output", "id": 3}, "value": true},
+                {"key": {"type": "input", "id": 0}, "value": true},
+                {"key": {"type": "input", "id": 1}, "value": true},
+                {"key": {"type": "input", "id": 2}, "value": true},
+                {"key": {"type": "input", "id": 3}, "value": true},
+                {"key": {"type": "input", "id": 4}, "value": true},
+                {"key": {"type": "input", "id": 5}, "value": true},
+                {"key": "blender", "value": true}
+            ]
+        }
+    ]
+}

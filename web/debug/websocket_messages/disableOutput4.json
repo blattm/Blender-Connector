@@ -1,0 +1,9 @@
+{
+    "method": "notify",
+    "scope": "connection",
+    "key": {
+        "type": "output",
+        "id": 3
+    },
+    "value": false
+}

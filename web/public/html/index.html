@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>Blender Connector</title>
+
+    <!-- Meta settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/css/components.css">
+    <link rel="stylesheet" type="text/css" href="/css/modifiers.css">
+
+    <!-- Scripts -->
+    <script type="module" src="/scripts/main.js"></script>
+</head>
+<body>
+    <!-- Global settings -->
+    <section id="global-settings-container">
+    </section>
+
+    <!-- Output selection -->
+    <section>
+        <div id="output-container">
+        </div>
+    </section>
+
+    <!-- Mixture controls -->
+    <section class="mixer-section">
+        <div id="mixer-container">
+        </div>
+    </section>
+
+    <!-- Local settings -->
+    <section id="local-settings-container"></section>
+    </section>
+
+    <!-- Templates -->
+
+    <template id="setting-template">
+        <div class="setting">
+            <button type="button"></button>
+            <input type="range" min="0" max="100" value="50" orient="horizontal" />
+        </div>
+    </template>
+
+    <template id="output-button-template">
+        <div>
+            <button type="button"></button>
+        </div>
+    </template>
+
+    <template id="mixer-control-template">
+        <div class="mixer-control">
+            <input type="range" min="0" max="100" value="50" orient="vertical" />
+            <button type="button"></button>
+        </div>
+    </template>
+</body>
+</html>
