@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import ssl
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 HOST_NAME = "localhost"
@@ -77,7 +78,19 @@ class DebugWebServer(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     webServer = HTTPServer((HOST_NAME, SERVER_PORT), DebugWebServer)
-    print("Server started at: http://%s:%s" % (HOST_NAME, SERVER_PORT))
+
+    protocol = "http"
+
+    certificate_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cert.pem")
+    key_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "key.pem")
+
+    if os.path.exists(certificate_path) and os.path.exists(key_path):
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_context.load_cert_chain(certificate_path, key_path)
+        webServer.socket = ssl_context.wrap_socket(webServer.socket, server_side=True)
+        protocol = "https"
+
+    print(f"Server started at: {protocol}://{HOST_NAME}:{SERVER_PORT}")
 
     try:
         webServer.serve_forever()

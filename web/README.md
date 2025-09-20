@@ -30,6 +30,11 @@ python3 debug/debug_web_server.py
 python3 debug/debug_websocket_server.py
 ```
 
+Optionally, you can provide a TLS certificate and key to the web server for HTTPS support. To create a self-signed certificate for testing purposes, you can use the following command (before you start the web server):
+```bash
+openssl req -x509 -nodes -days 90 -newkey rsa:4096 -keyout debug/key.pem -out debug/cert.pem
+```
+
 Then, open your web browser and navigate to [`http://localhost:8080`](http://localhost:8080).
 
 ### For Production
