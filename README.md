@@ -33,3 +33,7 @@ The BLE protocol is described in [documentation/blender_protocol.md](documentati
 - This project is **not affiliated with TC Helicon** in any way.
 - Use this software and protocol description **at your own risk**.
 - The author is **not responsible** for any damage to your device, loss of functionality, or other issues caused by using this code or protocol information.
+
+This project's code and documentation are licensed under the [MIT License](licenses/MIT%20License.txt).<br>
+Other assets (images etc.) are licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC 4.0) License](licenses/CC%20BY-NC-SA%204.0%20License.txt).
+

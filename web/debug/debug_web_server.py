@@ -16,7 +16,7 @@ class Path:
             return
 
         components = path.split('/')[1:]
-        if len(components) == 1:
+        if len(components) == 1 and components[0].endswith('.html'):
             self.file_path = f"/public/html/{components[0]}"
             return
         else:
@@ -48,8 +48,9 @@ class DebugWebServer(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.send_header("Content-type", content_type)
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(bytes(content, "utf-8"))
+        self.wfile.write(content)
 
     def _get_content_type (self, file_path: str) -> str|None:
         if file_path.endswith('.html'):
@@ -66,12 +67,16 @@ class DebugWebServer(BaseHTTPRequestHandler):
             return 'image/jpeg'
         elif file_path.endswith('.svg'):
             return 'image/svg+xml'
+        elif file_path.endswith('.ico'):
+            return 'image/vnd.microsoft.icon'
+        elif file_path.endswith('.json'):
+            return 'application/json'
         else:
             return None
 
-    def _get_file_content (self, file_path: str) -> str|None:
+    def _get_file_content (self, file_path: str) -> bytes|None:
         try:
-            with open(file_path, 'r') as file:
+            with open(file_path, 'rb') as file:
                 return file.read()
         except FileNotFoundError:
             return None
