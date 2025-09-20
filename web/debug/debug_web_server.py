@@ -4,7 +4,7 @@ import os
 import ssl
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-HOST_NAME = "localhost"
+HOST_NAME = "0.0.0.0"
 SERVER_PORT = 8080
 
 class Path:

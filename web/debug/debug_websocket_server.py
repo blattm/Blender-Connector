@@ -13,7 +13,7 @@ import json
 import os
 import websockets
 
-HOST_NAME = "localhost"
+HOST_NAME = "0.0.0.0"
 SERVER_PORT = 8081
 
 class WebSocketServer:
