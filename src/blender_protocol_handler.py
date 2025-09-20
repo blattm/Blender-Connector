@@ -2,8 +2,31 @@
 BlenderProtocolHandler - Handles conversion between BLE protocol messages and BlenderState.
 This class implements the protocol logic documented in documentation/blender_protocol.md
 """
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
+from enum import Enum
+from dataclasses import dataclass
 from blender_state import BlenderState
+
+
+class MessageType(Enum):
+    """BLE message types."""
+    HANDSHAKE = "handshake"
+    INPUT_LEVEL = "input_level"
+    TOTAL_VOLUME = "total_volume"
+    COMPRESSION_LEVEL = "compression_level"
+    ROOM_MIC_VOLUME = "room_mic_volume"
+    MUTED = "muted"
+    COMPRESSION_FLAGS = "compression_flags"
+    MICROPHONE = "microphone"
+    CONNECTION_FLAGS = "connection_flags"
+    UNKNOWN = "unknown"
+
+
+@dataclass
+class BLEMessage:
+    """Represents a parsed BLE message."""
+    message_type: MessageType
+    data: dict
 
 
 class BlenderProtocolHandler:
@@ -13,26 +36,32 @@ class BlenderProtocolHandler:
         self.state = state
     
     def ble_to_normalized_value(self, ble_value: int) -> float:
-        """Convert BLE value (0x00-0xFF) to normalized float (0.0-1.0)."""
+        """Convert BLE value to normalized float (0.0-1.0)."""
         if ble_value == 0xFF:
             return 1.0
+        if ble_value == 0x00:
+            return 0.0
         # BLE uses discrete steps: 0x00, 0x08, 0x10, ..., 0xF8 (32 steps)
-        # Normalize to 0.0-1.0 range
-        return min(1.0, ble_value / 248.0)  # 248 = 0xF8
+        # Each step is 8 units apart, so step = ble_value / 8
+        step = ble_value // 8
+        # Normalize to 0.0-1.0 range (31 steps from 1 to 31, step 0 is handled above)
+        return min(1.0, step / 31.0)
     
     def normalized_to_ble_value(self, normalized: float) -> int:
-        """Convert normalized float (0.0-1.0) to BLE value (0x00-0xFF)."""
+        """Convert normalized float (0.0-1.0) to BLE value."""
         if normalized >= 1.0:
             return 0xFF
         if normalized <= 0.0:
             return 0x00
-        # Convert to discrete BLE steps
-        step = int(normalized * 31)  # 31 steps from 0 to 31
+        # Convert to discrete BLE steps (0x08, 0x10, 0x18, ..., 0xF8)
+        step = int(normalized * 31)  # 31 steps from 0 to 30
+        if step == 0:
+            return 0x00
         return min(0xF8, step * 8)
     
-    def parse_ble_message(self, message: bytes) -> Optional[Tuple[str, dict]]:
+    def parse_ble_message(self, message: bytes) -> Optional[BLEMessage]:
         """
-        Parse a 3-byte BLE message and return (message_type, data).
+        Parse a 3-byte BLE message and return BLEMessage object.
         Returns None if message cannot be parsed.
         """
         if len(message) != 3:
@@ -44,7 +73,7 @@ class BlenderProtocolHandler:
         
         # Handshake
         if property_id == 0x13 and byte1 == 0x00 and byte2 == 0x00:
-            return ("handshake", {})
+            return BLEMessage(MessageType.HANDSHAKE, {})
         
         # Per-output properties (0x00-0x08)
         if 0x00 <= property_id <= 0x08:
@@ -57,26 +86,26 @@ class BlenderProtocolHandler:
             if 0x00 <= property_id <= 0x05:
                 # Input mix levels
                 input_id = property_id
-                return ("input_level", {
+                return BLEMessage(MessageType.INPUT_LEVEL, {
                     "output": output_id,
                     "input": input_id,
                     "value": value
                 })
             elif property_id == 0x06:
                 # Total volume
-                return ("total_volume", {
+                return BLEMessage(MessageType.TOTAL_VOLUME, {
                     "output": output_id,
                     "value": value
                 })
             elif property_id == 0x07:
                 # Compression level
-                return ("compression_level", {
+                return BLEMessage(MessageType.COMPRESSION_LEVEL, {
                     "output": output_id,
                     "value": value
                 })
             elif property_id == 0x08:
                 # Room mic volume
-                return ("room_mic_volume", {
+                return BLEMessage(MessageType.ROOM_MIC_VOLUME, {
                     "output": output_id,
                     "value": value
                 })
@@ -85,7 +114,7 @@ class BlenderProtocolHandler:
         if property_id == 0x14 and byte1 == 0x00:
             # Mute state
             muted = byte2 == 0x0F
-            return ("muted", {"value": muted})
+            return BLEMessage(MessageType.MUTED, {"value": muted})
         
         if property_id == 0x15 and byte1 == 0x00:
             # Compression flags (bitmask)
@@ -94,12 +123,12 @@ class BlenderProtocolHandler:
                 bit_pos = 3 - i  # Bit 3 = Output 0, Bit 0 = Output 3
                 enabled = bool(byte2 & (1 << bit_pos))
                 compression_flags.append(enabled)
-            return ("compression_flags", {"flags": compression_flags})
+            return BLEMessage(MessageType.COMPRESSION_FLAGS, {"flags": compression_flags})
         
         if property_id == 0x09 and byte1 == 0x00:
             # Talkback/microphone
             enabled = byte2 == 0x01
-            return ("microphone", {"value": enabled})
+            return BLEMessage(MessageType.MICROPHONE, {"value": enabled})
         
         if property_id == 0x0B:
             # Connection flags
@@ -117,14 +146,14 @@ class BlenderProtocolHandler:
                 connected = bool(output_flags & (1 << bit_pos))
                 output_connections.append(connected)
             
-            return ("connection_flags", {
+            return BLEMessage(MessageType.CONNECTION_FLAGS, {
                 "input_connections": input_connections,
                 "output_connections": output_connections
             })
         
         # Unknown properties - we log but don't process
         if property_id in [0x0A, 0x11]:
-            return ("unknown", {"property_id": property_id, "data": [byte1, byte2]})
+            return BLEMessage(MessageType.UNKNOWN, {"property_id": property_id, "data": [byte1, byte2]})
         
         return None
     
@@ -135,41 +164,42 @@ class BlenderProtocolHandler:
             print(f"Unknown BLE message: {message.hex()}")
             return
         
-        message_type, data = parsed
+        message_type = parsed.message_type
+        data = parsed.data
         
-        if message_type == "handshake":
+        if message_type == MessageType.HANDSHAKE:
             # Handshake received - this is usually sent by clients
             pass
         
-        elif message_type == "input_level":
+        elif message_type == MessageType.INPUT_LEVEL:
             self.state.set_input_level(data["output"], data["input"], data["value"])
         
-        elif message_type == "total_volume":
+        elif message_type == MessageType.TOTAL_VOLUME:
             self.state.set_total_volume(data["output"], data["value"])
         
-        elif message_type == "compression_level":
+        elif message_type == MessageType.COMPRESSION_LEVEL:
             self.state.set_compression_level(data["output"], data["value"])
         
-        elif message_type == "room_mic_volume":
+        elif message_type == MessageType.ROOM_MIC_VOLUME:
             self.state.set_room_mic_volume(data["output"], data["value"])
         
-        elif message_type == "muted":
+        elif message_type == MessageType.MUTED:
             self.state.set_muted(data["value"])
         
-        elif message_type == "compression_flags":
+        elif message_type == MessageType.COMPRESSION_FLAGS:
             for output_id, enabled in enumerate(data["flags"]):
                 self.state.set_compression_enabled(output_id, enabled)
         
-        elif message_type == "microphone":
+        elif message_type == MessageType.MICROPHONE:
             self.state.set_microphone(data["value"])
         
-        elif message_type == "connection_flags":
+        elif message_type == MessageType.CONNECTION_FLAGS:
             for input_id, connected in enumerate(data["input_connections"]):
                 self.state.set_input_connection(input_id, connected)
             for output_id, connected in enumerate(data["output_connections"]):
                 self.state.set_output_connection(output_id, connected)
         
-        elif message_type == "unknown":
+        elif message_type == MessageType.UNKNOWN:
             print(f"Unknown property 0x{data['property_id']:02X}: {data['data']}")
     
     def create_ble_message(self, message_type: str, **kwargs) -> Optional[bytes]:

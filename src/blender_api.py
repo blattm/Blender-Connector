@@ -89,58 +89,39 @@ class BlenderAPI:
         if not self._connected or not self.ble_client:
             return
         
-        # Create BLE message for the state change
-        ble_message = None
+        # Map change types to BLE message creation
+        message_mapping = {
+            "input_level": lambda: self.protocol_handler.create_ble_message(
+                "input_level", output=kwargs["output"], input=kwargs["input"], value=kwargs["value"]
+            ),
+            "total_volume": lambda: self.protocol_handler.create_ble_message(
+                "total_volume", output=kwargs["output"], value=kwargs["value"]
+            ),
+            "compression_level": lambda: self.protocol_handler.create_ble_message(
+                "compression_level", output=kwargs["output"], value=kwargs["value"]
+            ),
+            "room_mic_volume": lambda: self.protocol_handler.create_ble_message(
+                "room_mic_volume", output=kwargs["output"], value=kwargs["value"]
+            ),
+            "muted": lambda: self.protocol_handler.create_ble_message(
+                "muted", value=kwargs["value"]
+            ),
+            "compression_enabled": lambda: self.protocol_handler.create_ble_message(
+                "compression_flags", flags=[self.state.outputs[i].compression_enabled for i in range(4)]
+            ),
+            "microphone": lambda: self.protocol_handler.create_ble_message(
+                "microphone", value=kwargs["value"]
+            )
+        }
         
-        if change_type == "input_level":
-            ble_message = self.protocol_handler.create_ble_message(
-                "input_level", 
-                output=kwargs["output"], 
-                input=kwargs["input"], 
-                value=kwargs["value"]
-            )
-        elif change_type == "total_volume":
-            ble_message = self.protocol_handler.create_ble_message(
-                "total_volume", 
-                output=kwargs["output"], 
-                value=kwargs["value"]
-            )
-        elif change_type == "compression_level":
-            ble_message = self.protocol_handler.create_ble_message(
-                "compression_level", 
-                output=kwargs["output"], 
-                value=kwargs["value"]
-            )
-        elif change_type == "room_mic_volume":
-            ble_message = self.protocol_handler.create_ble_message(
-                "room_mic_volume", 
-                output=kwargs["output"], 
-                value=kwargs["value"]
-            )
-        elif change_type == "muted":
-            ble_message = self.protocol_handler.create_ble_message(
-                "muted", 
-                value=kwargs["value"]
-            )
-        elif change_type == "compression_enabled":
-            # Need all compression flags for the message
-            flags = [self.state.outputs[i].compression_enabled for i in range(4)]
-            ble_message = self.protocol_handler.create_ble_message(
-                "compression_flags", 
-                flags=flags
-            )
-        elif change_type == "microphone":
-            ble_message = self.protocol_handler.create_ble_message(
-                "microphone", 
-                value=kwargs["value"]
-            )
-        
-        # Send message to device
-        if ble_message:
-            try:
-                asyncio.create_task(self.ble_client.send_data(ble_message))
-            except Exception as e:
-                print(f"Failed to send BLE message: {e}")
+        # Create and send BLE message if mapping exists
+        if change_type in message_mapping:
+            ble_message = message_mapping[change_type]()
+            if ble_message:
+                try:
+                    asyncio.create_task(self.ble_client.send_data(ble_message))
+                except Exception as e:
+                    print(f"Failed to send BLE message: {e}")
     
     # High-level control methods
     

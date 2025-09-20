@@ -247,87 +247,71 @@ class WebSocketAPI:
     def _create_notification(self, change_type: str, kwargs: dict) -> Optional[dict]:
         """Create a notification message for a state change."""
         
-        if change_type == "input_level":
-            return {
+        # Notification message templates
+        notification_templates = {
+            "input_level": {
                 "method": "notify",
                 "scope": {"type": "output", "id": kwargs["output"]},
                 "key": {"type": "input", "id": kwargs["input"]},
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "total_volume":
-            return {
+            },
+            "total_volume": {
                 "method": "notify",
                 "scope": {"type": "output", "id": kwargs["output"]},
                 "key": "sound_volume",
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "room_mic_volume":
-            return {
+            },
+            "room_mic_volume": {
                 "method": "notify",
                 "scope": {"type": "output", "id": kwargs["output"]},
                 "key": "microphone_volume",
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "compression_level":
-            return {
+            },
+            "compression_level": {
                 "method": "notify",
                 "scope": {"type": "output", "id": kwargs["output"]},
                 "key": "compressor_value",
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "compression_enabled":
-            return {
+            },
+            "compression_enabled": {
                 "method": "notify",
                 "scope": {"type": "output", "id": kwargs["output"]},
                 "key": "compressor_state",
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "muted":
-            return {
+            },
+            "muted": {
                 "method": "notify",
                 "scope": "global",
                 "key": "muted",
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "microphone":
-            return {
+            },
+            "microphone": {
                 "method": "notify",
                 "scope": "global",
                 "key": "microphone",
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "input_connection":
-            return {
+            },
+            "input_connection": {
                 "method": "notify",
                 "scope": "connection",
                 "key": {"type": "input", "id": kwargs["input"]},
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "output_connection":
-            return {
+            },
+            "output_connection": {
                 "method": "notify",
                 "scope": "connection",
                 "key": {"type": "output", "id": kwargs["output"]},
                 "value": kwargs["value"]
-            }
-        
-        elif change_type == "blender_connected":
-            return {
+            },
+            "blender_connected": {
                 "method": "notify",
                 "scope": "connection",
                 "key": "blender",
                 "value": kwargs["value"]
             }
+        }
         
-        return None
+        return notification_templates.get(change_type)
     
     def _on_connection_change(self, connected: bool):
         """Handle Blender connection state changes."""

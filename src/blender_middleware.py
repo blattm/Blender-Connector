@@ -9,7 +9,12 @@ import sys
 from typing import Optional
 from blender_api import BlenderAPI
 from websocket_api import WebSocketAPI
-from osc_api import OSCAPI
+
+try:
+    from osc_api import OSCAPI
+    OSC_AVAILABLE = True
+except ImportError:
+    OSC_AVAILABLE = False
 
 
 class BlenderMiddleware:
@@ -25,7 +30,17 @@ class BlenderMiddleware:
         self.auto_connect = auto_connect
         self.blender_api = BlenderAPI()
         self.websocket_api = WebSocketAPI(self.blender_api, websocket_host, websocket_port)
-        self.osc_api = OSCAPI(self.blender_api, osc_host, osc_port)
+        
+        # Only create OSC API if available
+        if OSC_AVAILABLE:
+            try:
+                self.osc_api = OSCAPI(self.blender_api, osc_host, osc_port)
+            except ImportError:
+                print("OSC support not available - continuing without OSC server")
+                self.osc_api = None
+        else:
+            print("OSC support not available - continuing without OSC server")
+            self.osc_api = None
         
         self._running = False
         self._connection_retry_task: Optional[asyncio.Task] = None
@@ -44,7 +59,8 @@ class BlenderMiddleware:
         # Start API servers
         try:
             await self.websocket_api.start()
-            await self.osc_api.start()
+            if self.osc_api:
+                await self.osc_api.start()
             
             self._running = True
             print("API servers started successfully")
@@ -82,7 +98,8 @@ class BlenderMiddleware:
         
         # Stop API servers
         await self.websocket_api.stop()
-        await self.osc_api.stop()
+        if self.osc_api:
+            await self.osc_api.stop()
         
         self._running = False
         print("Blender Middleware stopped")
@@ -149,15 +166,17 @@ class BlenderMiddleware:
         print(f"WebSocket Server: {'Running' if self.websocket_api.is_running() else 'Stopped'}")
         print(f"  - Address: ws://{self.websocket_api.host}:{self.websocket_api.port}")
         print(f"  - Connected Clients: {self.websocket_api.get_client_count()}")
-        print(f"OSC Server: {'Running' if self.osc_api.is_running() else 'Stopped'}")
-        print(f"  - Address: {self.osc_api.host}:{self.osc_api.port}")
-        print(f"  - Registered Clients: {self.osc_api.get_client_count()}")
+        print(f"OSC Server: {'Running' if self.osc_api and self.osc_api.is_running() else 'Not Available'}")
+        if self.osc_api:
+            print(f"  - Address: {self.osc_api.host}:{self.osc_api.port}")
+            print(f"  - Registered Clients: {self.osc_api.get_client_count()}")
         print("="*50)
         
         if self._running:
             print("\nAPI Endpoints:")
             print(f"  WebSocket: ws://{self.websocket_api.host}:{self.websocket_api.port}")
-            print(f"  OSC: {self.osc_api.host}:{self.osc_api.port}")
+            if self.osc_api:
+                print(f"  OSC: {self.osc_api.host}:{self.osc_api.port}")
             print("\nTo stop: Ctrl+C")
         print("")
     
@@ -173,10 +192,10 @@ class BlenderMiddleware:
                 "client_count": self.websocket_api.get_client_count()
             },
             "osc": {
-                "running": self.osc_api.is_running(),
-                "host": self.osc_api.host,
-                "port": self.osc_api.port,
-                "client_count": self.osc_api.get_client_count()
+                "running": self.osc_api.is_running() if self.osc_api else False,
+                "host": self.osc_api.host if self.osc_api else None,
+                "port": self.osc_api.port if self.osc_api else None,
+                "client_count": self.osc_api.get_client_count() if self.osc_api else 0
             },
             "blender_state": self.blender_api.get_state_dict()
         }
@@ -198,10 +217,13 @@ async def main():
         auto_connect=True
     )
     
+    # Create shutdown event
+    shutdown_event = asyncio.Event()
+    
     # Set up signal handlers for graceful shutdown
     def signal_handler():
         print("\nReceived interrupt signal, shutting down...")
-        asyncio.create_task(middleware.stop())
+        shutdown_event.set()
     
     # Register signal handlers
     if sys.platform != "win32":
@@ -213,10 +235,9 @@ async def main():
         # Start the middleware
         await middleware.start()
         
-        # Keep running until stopped
-        while middleware.is_running():
-            await asyncio.sleep(1)
-            
+        # Wait for shutdown signal
+        await shutdown_event.wait()
+        
     except KeyboardInterrupt:
         print("\nShutting down...")
     except Exception as e:

@@ -12,7 +12,7 @@ A WIP reverse-engineered Linux interface for the TC Helicon Blender mixer, enabl
 
 The BLE protocol is described in [documentation/blender_protocol.md](documentation/blender_protocol.md).
 
-The web protocol is described in [documentation/web_protocol.md](documentation/web_protocol.md).
+The web protocol (our custom JSON protocol for clients) is described in [documentation/web_protocol.md](documentation/web_protocol.md).
 
 ## Middleware
 

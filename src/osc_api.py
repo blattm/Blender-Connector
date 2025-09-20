@@ -14,31 +14,14 @@ try:
     OSC_AVAILABLE = True
 except ImportError:
     OSC_AVAILABLE = False
-    print("python-osc not available. OSC support disabled.")
-
-
-class OSCStub:
-    """Stub class when OSC is not available."""
-    def __init__(self, *args, **kwargs):
-        pass
-    
-    async def start(self):
-        print("OSC not available - install python-osc package")
-    
-    async def stop(self):
-        pass
-    
-    def is_running(self):
-        return False
 
 
 class OSCAPI:
     """OSC server for Blender control."""
     
-    def __init__(self, blender_api: BlenderAPI, host: str = "127.0.0.1", port: int = 8765):
+    def __init__(self, blender_api, host: str = "127.0.0.1", port: int = 8765):
         if not OSC_AVAILABLE:
-            self.__class__ = OSCStub
-            return
+            raise ImportError("python-osc not available. Install python-osc to use OSC support.")
         
         self.blender_api = blender_api
         self.host = host
