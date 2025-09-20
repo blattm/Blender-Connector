@@ -31,9 +31,9 @@ Format for all per-output properties:
 `<PropertyID> <OutputNumber> <Value>`
 
 - `<OutputNumber>`: 0–3 (four outputs)
-- `<Value>`: volume/compression level (1 byte)
-  - `0x00, 0x08, 0x10, …, 0xF8` → 32 discrete steps
-  - `0xFF` → max
+- `<Value>`: volume/compression level (1 byte, full range 0x00-0xFF)
+  - Input values are rounded by Blender to 32 discrete levels (see Rounding section below)
+  - Stored values: `0x00, 0x08, 0x10, …, 0xF0, 0xFF`
 
 | PropertyID | Name               | Notes                               |
 |------------|------------------|-------------------------------------|
@@ -102,3 +102,36 @@ Format: `0x0B <InputFlags> <OutputFlags>`
 
 - **0x0A**: only observed value `0x00 0x00`, purpose unknown
 - **0x11**: only observed value `0x00 0x00`, purpose unknown
+
+---
+
+## Value Rounding
+
+The Blender device accepts full 8-bit values (0x00-0xFF) for volume and compression levels, but internally rounds and stores them as 32 discrete levels.
+
+### Rounding Algorithm
+
+The device uses the following rounding function:
+
+```python
+def round_value(x: int) -> int:
+    if x >= 0xF8:
+        return 0xFF
+    return (x // 8) * 8
+```
+
+This creates the following mapping:
+- `0x00-0x07` → `0x00` (step 0)
+- `0x08-0x0F` → `0x08` (step 1)
+- `0x10-0x17` → `0x10` (step 2)
+- ...
+- `0xF0-0xF7` → `0xF0` (step 30)
+- `0xF8-0xFF` → `0xFF` (step 31/max)
+
+### Practical Implications
+
+- The device accepts any 8-bit input value but only stores 32 possible values
+- Values `0xF8` through `0xFF` all map to maximum (`0xFF`)
+- All other values are rounded down to the nearest multiple of 8
+- This gives 31 evenly-spaced steps (0x00, 0x08, 0x10, ..., 0xF0) plus maximum (0xFF)
+- When reading back values via state requests, you will only see the rounded values
