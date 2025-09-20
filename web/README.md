@@ -34,11 +34,11 @@ Then, open your web browser and navigate to [`http://localhost:8080`](http://loc
 
 ### For Production
 
-For production use, adjust the websocket address in [main.ts](./source/main.ts):
+For production use, adjust the websocket port (and address if necessary) in [main.ts](./source/main.ts):
 ```typescript
 class Main
 {
-    private static readonly webSocketAddress = "localhost:8081";
+    private static readonly webSocketAddress = window.location.hostname + ":8081";
 }
 ```
 

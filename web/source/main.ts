@@ -5,7 +5,7 @@ import { WebSocketClient } from './api/websocketClient';
 
 class Main
 {
-    private static readonly webSocketAddress = "localhost:8081";
+    private static readonly webSocketAddress = window.location.hostname + ":8081";
     private static readonly outputCount = 4;
     private static readonly inputCount = 6;
 
